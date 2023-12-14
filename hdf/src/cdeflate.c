@@ -34,13 +34,23 @@
 /* General HDF includes */
 #include "hdf.h"
 
-#define CDEFLATE_MASTER
-#define CODER_CLIENT
 /* HDF compression includes */
 #include "hcompi.h" /* Internal definitions for compression */
 
-/* Internal Defines */
-/* #define TESTING */
+/* Define the [default] size of the buffer to interact with the file */
+#define DEFLATE_BUF_SIZE     4096
+#define DEFLATE_TMP_BUF_SIZE 16384
+
+/* functions to perform gzip encoding */
+funclist_t cdeflate_funcs = {HCPcdeflate_stread,
+                             HCPcdeflate_stwrite,
+                             HCPcdeflate_seek,
+                             HCPcdeflate_inquire,
+                             HCPcdeflate_read,
+                             HCPcdeflate_write,
+                             HCPcdeflate_endaccess,
+                             NULL,
+                             NULL};
 
 /* declaration of the functions provided in this module */
 static int32 HCIcdeflate_init(compinfo_t *info);
@@ -85,7 +95,7 @@ HCIcdeflate_init(compinfo_t *info)
     deflate_info->deflate_context.opaque    = NULL;
     deflate_info->deflate_context.data_type = Z_BINARY;
 
-    return (SUCCEED);
+    return SUCCEED;
 } /* end HCIcdeflate_init() */
 
 /*--------------------------------------------------------------------------
@@ -151,7 +161,7 @@ HCIcdeflate_decode(compinfo_t *info, int32 length, uint8 *buf)
     bytes_read = (int32)length - (int32)deflate_info->deflate_context.avail_out;
     deflate_info->offset += bytes_read;
 
-    return (bytes_read);
+    return bytes_read;
 } /* end HCIcdeflate_decode() */
 
 /*--------------------------------------------------------------------------
@@ -204,7 +214,7 @@ HCIcdeflate_encode(compinfo_t *info, int32 length, void *buf)
     }                               /* end while */
     deflate_info->offset += length; /* incr. abs. offset into the file */
 
-    return (length);
+    return length;
 } /* end HCIcdeflate_encode() */
 
 /*--------------------------------------------------------------------------
@@ -274,7 +284,7 @@ HCIcdeflate_term(compinfo_t *info, uint32 acc_mode)
     deflate_info->acc_init = 0; /* second stage of initializing not performed */
     deflate_info->acc_mode = 0; /* init access mode to illegal value */
 
-    return (SUCCEED);
+    return SUCCEED;
 } /* end HCIcdeflate_term() */
 
 /*--------------------------------------------------------------------------
@@ -330,7 +340,7 @@ HCIcdeflate_staccess(accrec_t *access_rec, int16 acc_mode)
     if ((deflate_info->io_buf = malloc(DEFLATE_BUF_SIZE)) == NULL)
         HRETURN_ERROR(DFE_NOSPACE, FAIL);
 
-    return (SUCCEED);
+    return SUCCEED;
 } /* end HCIcdeflate_staccess() */
 
 /*--------------------------------------------------------------------------
@@ -389,7 +399,7 @@ HCIcdeflate_staccess2(accrec_t *access_rec, int16 acc_mode)
     /* set flag to indicate second stage of initialization is finished */
     deflate_info->acc_init = acc_mode;
 
-    return (SUCCEED);
+    return SUCCEED;
 } /* end HCIcdeflate_staccess2() */
 
 /*--------------------------------------------------------------------------
@@ -417,7 +427,7 @@ HCPcdeflate_stread(accrec_t *access_rec)
     if (HCIcdeflate_staccess(access_rec, DFACC_READ) == FAIL)
         HRETURN_ERROR(DFE_CINIT, FAIL);
 
-    return (SUCCEED);
+    return SUCCEED;
 } /* HCPcdeflate_stread() */
 
 /*--------------------------------------------------------------------------
@@ -445,7 +455,7 @@ HCPcdeflate_stwrite(accrec_t *access_rec)
     if (HCIcdeflate_staccess(access_rec, DFACC_WRITE) == FAIL)
         HRETURN_ERROR(DFE_CINIT, FAIL);
 
-    return (SUCCEED);
+    return SUCCEED;
 } /* HCPcdeflate_stwrite() */
 
 /*--------------------------------------------------------------------------
@@ -475,9 +485,10 @@ HCPcdeflate_stwrite(accrec_t *access_rec)
 int32
 HCPcdeflate_seek(accrec_t *access_rec, int32 offset, int origin)
 {
-    compinfo_t                *info;                          /* special element information */
-    comp_coder_deflate_info_t *deflate_info;                  /* ptr to gzip 'deflate' info */
-    uint8                      tmp_buf[DEFLATE_TMP_BUF_SIZE]; /* temporary buffer */
+    compinfo_t                *info;             /* special element information */
+    comp_coder_deflate_info_t *deflate_info;     /* ptr to gzip 'deflate' info */
+    uint8                     *tmp_buf   = NULL; /* temporary buffer */
+    int32                      ret_value = SUCCEED;
 
     (void)origin;
 
@@ -487,36 +498,47 @@ HCPcdeflate_seek(accrec_t *access_rec, int32 offset, int origin)
     /* Check if second stage of initialization has been performed */
     if (deflate_info->acc_init == 0) {
         if (HCIcdeflate_staccess2(access_rec, DFACC_READ) == FAIL)
-            HRETURN_ERROR(DFE_CINIT, FAIL);
-    } /* end if */
+            HGOTO_ERROR(DFE_CINIT, FAIL);
+    }
 
-    if (offset < deflate_info->offset) { /* need to seek from the beginning */
+    if (offset < deflate_info->offset) {
+
+        /* need to seek from the beginning */
+
         /* Terminate the previous method of access */
         if (HCIcdeflate_term(info, deflate_info->acc_mode) == FAIL)
-            HRETURN_ERROR(DFE_CTERM, FAIL);
+            HGOTO_ERROR(DFE_CTERM, FAIL);
 
         /* Restart access */
-        /* if (HCIcdeflate_staccess2(access_rec, deflate_info->acc_mode) == FAIL) */
         if (HCIcdeflate_staccess2(access_rec, DFACC_READ) == FAIL)
-            HRETURN_ERROR(DFE_CINIT, FAIL);
+            HGOTO_ERROR(DFE_CINIT, FAIL);
 
         /* Go back to the beginning of the data-stream */
         if (Hseek(info->aid, 0, 0) == FAIL)
-            HRETURN_ERROR(DFE_SEEKERROR, FAIL);
-    } /* end if */
+            HGOTO_ERROR(DFE_SEEKERROR, FAIL);
+    }
 
-    while (deflate_info->offset + DEFLATE_TMP_BUF_SIZE < offset) { /* grab chunks */
+    /* Allocate a temporary buffer for decompression */
+    if ((tmp_buf = (uint8 *)malloc(sizeof(uint8) * DEFLATE_TMP_BUF_SIZE)) == NULL)
+        HGOTO_ERROR(DFE_NOSPACE, FAIL);
+
+    while (deflate_info->offset + DEFLATE_TMP_BUF_SIZE < offset) {
+        /* grab chunks */
         if (HCIcdeflate_decode(info, DEFLATE_TMP_BUF_SIZE, tmp_buf) == FAIL) {
-            HRETURN_ERROR(DFE_CDECODE, FAIL)
-        }                                /* end if */
-    }                                    /* end if */
-    if (deflate_info->offset < offset) { /* grab the last chunk */
+            HGOTO_ERROR(DFE_CDECODE, FAIL);
+        }
+    }
+    if (deflate_info->offset < offset) {
+        /* grab the last chunk */
         if (HCIcdeflate_decode(info, offset - deflate_info->offset, tmp_buf) == FAIL) {
-            HRETURN_ERROR(DFE_CDECODE, FAIL)
-        } /* end if */
-    }     /* end if */
+            HGOTO_ERROR(DFE_CDECODE, FAIL);
+        }
+    }
 
-    return (SUCCEED);
+done:
+    free(tmp_buf);
+
+    return ret_value;
 } /* HCPcdeflate_seek() */
 
 /*--------------------------------------------------------------------------
@@ -567,7 +589,7 @@ HCPcdeflate_read(accrec_t *access_rec, int32 length, void *data)
     if ((length = HCIcdeflate_decode(info, length, data)) == FAIL)
         HRETURN_ERROR(DFE_CDECODE, FAIL);
 
-    return (length);
+    return length;
 } /* HCPcdeflate_read() */
 
 /*--------------------------------------------------------------------------
@@ -624,7 +646,7 @@ HCPcdeflate_write(accrec_t *access_rec, int32 length, const void *data)
     if ((length = HCIcdeflate_encode(info, length, (void *)data)) == FAIL)
         HRETURN_ERROR(DFE_CENCODE, FAIL);
 
-    return (length);
+    return length;
 } /* HCPcdeflate_write() */
 
 /*--------------------------------------------------------------------------
@@ -670,7 +692,7 @@ HCPcdeflate_inquire(accrec_t *access_rec, int32 *pfile_id, uint16 *ptag, uint16 
     (void)paccess;
     (void)pspecial;
 
-    return (SUCCEED);
+    return SUCCEED;
 } /* HCPcdeflate_inquire() */
 
 /*--------------------------------------------------------------------------
@@ -712,5 +734,5 @@ HCPcdeflate_endaccess(accrec_t *access_rec)
     if (Hendaccess(info->aid) == FAIL)
         HRETURN_ERROR(DFE_CANTCLOSE, FAIL);
 
-    return (SUCCEED);
+    return SUCCEED;
 } /* HCPcdeflate_endaccess() */

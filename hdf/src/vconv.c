@@ -79,10 +79,10 @@ static int16
 VSIZEOF(int16 x)
 {
     if (x < 0 || x > (int16)(LOCALSIZETAB_SIZE - 1)) {
-        return (FAIL);
+        return FAIL;
     }
     else {
-        return (local_sizetab[x]);
+        return local_sizetab[x];
     }
 } /* VSIZEOF */
 
@@ -144,12 +144,12 @@ vicheckcompat(HFILEID f)
 
     HEclear();         /* clear the stack to remove faux failures - bug #655 */
     if (foundold == 0) /* has no old vset elements */
-        return (1);    /* just assume compatible */
+        return 1;      /* just assume compatible */
 
     if (foundnew > 0)
-        return (1); /* file is already compatible */
+        return 1; /* file is already compatible */
     else
-        return (0); /* file is not compatible */
+        return 0; /* file is not compatible */
 } /* vicheckcompat */
 
 /* ------------------------------------------------------------------ */
@@ -197,7 +197,7 @@ vimakecompat(HFILEID f)
         ret = Hgetelement(f, (uint16)OLD_VGDESCTAG, ref, (uint8 *)buf);
         if (ret == FAIL) {
             free(buf);
-            HRETURN_ERROR(DFE_READERROR, 0)
+            HRETURN_ERROR(DFE_READERROR, 0);
         }
 
         oldunpackvg(vg, buf, &bsize);
@@ -250,7 +250,7 @@ vimakecompat(HFILEID f)
         ret = Hgetelement(f, tag, ref, (uint8 *)buf);
         if (ret == FAIL) {
             free(buf);
-            HRETURN_ERROR(DFE_READERROR, 0)
+            HRETURN_ERROR(DFE_READERROR, 0);
         }
 
         oldunpackvs(vs, buf, &bsize);
@@ -266,7 +266,7 @@ vimakecompat(HFILEID f)
         ret = Hputelement(f, VSDESCTAG, ref, (uint8 *)buf, bsize);
         if (ret == FAIL) {
             free(buf);
-            HRETURN_ERROR(DFE_WRITEERROR, 0)
+            HRETURN_ERROR(DFE_WRITEERROR, 0);
         }
 
         /* duplicate a tag to point to vdata data */
@@ -280,7 +280,7 @@ vimakecompat(HFILEID f)
     Hendaccess(aid);
     VSIrelease_vdata_node(vs);
 
-    return (1);
+    return 1;
 
 } /* vimakecompat */
 
@@ -311,7 +311,7 @@ vcheckcompat(char *fs)
     ret = vicheckcompat(f);
     Hclose(f);
 
-    return (ret);
+    return ret;
 } /* vcheckcompat */
 
 /* ================================================================== */
@@ -337,7 +337,7 @@ vmakecompat(char *fs)
         HRETURN_ERROR(DFE_BADOPEN, FAIL);
     ret = vimakecompat(f);
     Hclose(f);
-    return (ret);
+    return ret;
 } /* vmakecompat */
 
 /* ==================================================================== */
@@ -366,7 +366,7 @@ oldunpackvg(VGROUP *vg, uint8 buf[], int32 *size)
         UINT16DECODE(bb, vg->ref[i]);
 
     /* retrieve vgname */
-    HDstrcpy(vg->vgname, (char *)bb);
+    strcpy(vg->vgname, (char *)bb);
 } /* oldunpackvg */
 
 /* ================================================================= */
@@ -404,12 +404,12 @@ oldunpackvs(VDATA *vs, uint8 buf[], int32 *size)
         UINT16DECODE(bb, vs->wlist.order[i]);
 
     for (i = 0; i < vs->wlist.n; i++) {
-        HDstrcpy(vs->wlist.name[i], (char *)bb);
-        bb += (HDstrlen(vs->wlist.name[i]) + 1);
+        strcpy(vs->wlist.name[i], (char *)bb);
+        bb += (strlen(vs->wlist.name[i]) + 1);
     }
 
-    HDstrcpy(vs->vsname, (char *)bb);
-    bb += (HDstrlen(vs->vsname) + 1);
+    strcpy(vs->vsname, (char *)bb);
+    bb += (strlen(vs->vsname) + 1);
 
     /* **EXTRA**  fill in the machine-dependent size fields */
     for (i = 0; i < vs->wlist.n; i++) /* FAIL check on VSIZEOF()? */

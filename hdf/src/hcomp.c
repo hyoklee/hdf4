@@ -72,7 +72,6 @@ MODIFICATION HISTORY
  */
 
 /* General HDF includes */
-#define COMPRESS_MASTER
 #include "hdf.h"
 
 #ifdef H4_HAVE_LIBSZ
@@ -85,6 +84,23 @@ MODIFICATION HISTORY
 /* Local defines */
 #define COMP_HEADER_VERSION 0
 #define COMP_START_BLOCK    0
+
+/* Mapping from compression types to tags */
+uint16 compress_map[COMP_MAX_COMP + 1] = {
+    0,           /* No corresponding tag for un-compressed data */
+    0,           /* (1) */
+    DFTAG_JPEG5, /* COMP_JPEG -> DFTAG_JPEG5 (for JPEG compression) */
+    0,           /* (3) */
+    0,           /* (4) */
+    0,           /* (5) */
+    0,           /* (6) */
+    0,           /* (7) */
+    0,           /* (8) */
+    0,           /* (9) */
+    0,           /* (10) */
+    DFTAG_RLE,   /* COMP_RLE -> DFTAG_RLE (for Run-length compression) */
+    DFTAG_IMC    /* COMP_IMCOMP -> DFTAG_IMC (for IMCOMP compression) */
+};
 
 /* declaration of the functions provided in this module */
 static int32 HCIstaccess(accrec_t *access_rec, int16 acc_mode);
@@ -108,8 +124,6 @@ funclist_t comp_funcs = {
     HCPstread, HCPstwrite,   HCPseek, HCPinquire, HCPread,
     HCPwrite,  HCPendaccess, HCPinfo, NULL /* no routine registered */
 };
-
-/* #define TESTING */
 
 /*--------------------------------------------------------------------------
  NAME
@@ -149,7 +163,7 @@ HCIinit_coder(int16 acc_mode, comp_coder_info_t *cinfo, comp_coder_t coder_type,
      */
     if ((comp_config_info & COMP_DECODER_ENABLED | COMP_ENCODER_ENABLED) == 0) {
         /* coder not present?? */
-        HRETURN_ERROR(DFE_BADCODER, FAIL)
+        HRETURN_ERROR(DFE_BADCODER, FAIL);
     }
 
     switch (coder_type) {                        /* determine the type of encoding */
@@ -179,7 +193,7 @@ HCIinit_coder(int16 acc_mode, comp_coder_info_t *cinfo, comp_coder_t coder_type,
 
         case COMP_CODE_SKPHUFF: /* Skipping Huffman encoding */
             if (c_info->skphuff.skp_size < 1)
-                HRETURN_ERROR(DFE_BADCODER, FAIL)
+                HRETURN_ERROR(DFE_BADCODER, FAIL);
 
             /* set the coding type and the skipping huffman func. ptrs */
             cinfo->coder_type  = COMP_CODE_SKPHUFF;
@@ -195,7 +209,7 @@ HCIinit_coder(int16 acc_mode, comp_coder_info_t *cinfo, comp_coder_t coder_type,
                                 if(c_info->deflate.level<1 || c_info->deflate.level>9)
                                 */
             if (c_info->deflate.level < 0 || c_info->deflate.level > 9)
-                HRETURN_ERROR(DFE_BADCODER, FAIL)
+                HRETURN_ERROR(DFE_BADCODER, FAIL);
 
             /* set the coding type and the gzip 'deflate' func. ptrs */
             cinfo->coder_type  = COMP_CODE_DEFLATE;
@@ -232,9 +246,9 @@ HCIinit_coder(int16 acc_mode, comp_coder_info_t *cinfo, comp_coder_t coder_type,
             break;
 
         default:
-            HRETURN_ERROR(DFE_BADCODER, FAIL)
+            HRETURN_ERROR(DFE_BADCODER, FAIL);
     } /* end switch */
-    return (SUCCEED);
+    return SUCCEED;
 } /* end HCIinit_coder() */
 
 /*--------------------------------------------------------------------------
@@ -270,10 +284,10 @@ HCIinit_model(int16 acc_mode, comp_model_info_t *minfo, comp_model_t model_type,
             break;
 
         default:
-            HRETURN_ERROR(DFE_BADMODEL, FAIL)
+            HRETURN_ERROR(DFE_BADMODEL, FAIL);
     } /* end switch */
 
-    return (SUCCEED);
+    return SUCCEED;
 } /* end HCIinit_model() */
 
 /*--------------------------------------------------------------------------
@@ -406,7 +420,7 @@ HCPencode_header(uint8 *p, comp_model_t model_type, model_info *m_info, comp_cod
 
         case COMP_CODE_SKPHUFF: /* Skipping Huffman coding needs info */
             if (c_info->skphuff.skp_size < 1)
-                HRETURN_ERROR(DFE_BADCODER, FAIL)
+                HRETURN_ERROR(DFE_BADCODER, FAIL);
 
             /* specify skipping unit size */
             UINT32ENCODE(p, (uint32)c_info->skphuff.skp_size);
@@ -419,7 +433,7 @@ HCPencode_header(uint8 *p, comp_model_t model_type, model_info *m_info, comp_cod
             if(c_info->deflate.level<1 || c_info->deflate.level>9)
             */
             if (c_info->deflate.level < 0 || c_info->deflate.level > 9)
-                HRETURN_ERROR(DFE_BADCODER, FAIL)
+                HRETURN_ERROR(DFE_BADCODER, FAIL);
 
             /* specify deflation level */
             UINT16ENCODE(p, (uint16)c_info->deflate.level);
@@ -1338,7 +1352,7 @@ HCPinquire(accrec_t *access_rec, int32 *pfile_id, uint16 *ptag, uint16 *pref, in
     if (pspecial != NULL)
         *pspecial = (int16)access_rec->special;
 
-    return (SUCCEED);
+    return SUCCEED;
 } /* end HCPinquire() */
 
 /*--------------------------------------------------------------------------
@@ -1428,7 +1442,7 @@ HCPcloseAID(accrec_t *access_rec)
         free(info);
         access_rec->special_info = NULL;
     }
-    return (ret);
+    return ret;
 } /* end HCPcloseAID() */
 
 /* ------------------------------- HCPinfo -------------------------------- */
@@ -1535,7 +1549,7 @@ HCget_config_info(comp_coder_t coder_type, /* IN: compression type */
             break;
         default:
             *compression_config_info = 0;
-            HRETURN_ERROR(DFE_BADCODER, FAIL)
+            HRETURN_ERROR(DFE_BADCODER, FAIL);
     }
     return SUCCEED;
 }

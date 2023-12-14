@@ -186,7 +186,7 @@ main(void)
     CHECK(status, FAIL, "SDreadattr");
 
     /* Compare value reterieved to what was written */
-    if (HDstrncmp(text, "TRUE", count)) {
+    if (strncmp(text, "TRUE", count)) {
         fprintf(stderr, "SDreadattr: Invalid dimension attribute read <%s>\n", text);
         num_errs++;
     }
@@ -382,19 +382,19 @@ main(void)
     status = SDgetdatastrs(newsds, l, u, fmt, c, 80);
     CHECK(status, FAIL, "SDgetdatastrs");
 
-    if (HDstrcmp(l, "TheLabel")) {
+    if (strcmp(l, "TheLabel")) {
         fprintf(stderr, "Bogus label returned (%s)\n", l);
         num_errs++;
     }
-    if (HDstrcmp(u, "TheUnits")) {
+    if (strcmp(u, "TheUnits")) {
         fprintf(stderr, "Bogus units returned (%s)\n", u);
         num_errs++;
     }
-    if (HDstrcmp(fmt, "")) {
+    if (strcmp(fmt, "")) {
         fprintf(stderr, "Bogus format returned\n");
         num_errs++;
     }
-    if (HDstrcmp(c, "TheCordsys")) {
+    if (strcmp(c, "TheCordsys")) {
         fprintf(stderr, "Bogus cordsys returned\n");
         num_errs++;
     }
@@ -426,7 +426,7 @@ main(void)
     status = SDreadattr(f1, 0, text);
     CHECK(status, FAIL, "SDreadattr");
 
-    if (HDstrncmp(text, "globulator", count)) {
+    if (strncmp(text, "globulator", count)) {
         fprintf(stderr, "Invalid global attribute read <%s>\n", text);
         num_errs++;
     }
@@ -480,24 +480,24 @@ main(void)
     CHECK(status, FAIL, "SDreaddata");
 
     /* verify the data values retrieved from 'DataSetAlpha' */
-    if (data[0] != -17.5) {
-        fprintf(stderr, "Wrong value returned loc 0: %f\n", (float)data[0]);
+    if (data[0] != -17.5F) {
+        fprintf(stderr, "Wrong value returned loc 0: %f\n", (double)data[0]);
         num_errs++;
     }
-    if (data[3] != -17.5) {
-        fprintf(stderr, "Wrong value returned loc 3: %f\n", (float)data[3]);
+    if (data[3] != -17.5F) {
+        fprintf(stderr, "Wrong value returned loc 3: %f\n", (double)data[3]);
         num_errs++;
     }
-    if (data[5] != 1.0) {
-        fprintf(stderr, "Wrong value returned loc 5: %f\n", (float)data[5]);
+    if (data[5] != 1.0F) {
+        fprintf(stderr, "Wrong value returned loc 5: %f\n", (double)data[5]);
         num_errs++;
     }
-    if (data[6] != -17.5) {
-        fprintf(stderr, "Wrong value returned loc 6: %f\n", (float)data[6]);
+    if (data[6] != -17.5F) {
+        fprintf(stderr, "Wrong value returned loc 6: %f\n", (double)data[6]);
         num_errs++;
     }
-    if (data[8] != 4.0) {
-        fprintf(stderr, "Wrong value returned loc 8: %f\n", (float)data[8]);
+    if (data[8] != 4.0F) {
+        fprintf(stderr, "Wrong value returned loc 8: %f\n", (double)data[8]);
         num_errs++;
     }
 

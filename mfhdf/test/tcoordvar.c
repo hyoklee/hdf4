@@ -183,13 +183,13 @@ test_dim1_SDS1(void)
     status = SDattrinfo(sds_id, 0, attr_name, &num_type, &count);
     CHECK(status, FAIL, "SDattrinfo");
     VERIFY(count, ATTR2_LEN, "SDattrinfo");
-    VERIFY(HDstrncmp(attr_name, ATTR2_NAME, 14), 0, "SDattrinfo");
+    VERIFY(strncmp(attr_name, ATTR2_NAME, 14), 0, "SDattrinfo");
 
     /* Read and verify the values of the SDS' first attribute. */
     status = SDreadattr(sds_id, 0, attr_values);
     CHECK(status, FAIL, "SDreadattr");
 
-    if (HDstrncmp(attr_values, ATTR2_VAL, ATTR2_LEN) != 0) {
+    if (strncmp(attr_values, ATTR2_VAL, ATTR2_LEN) != 0) {
         fprintf(stderr, "Unmatched attribute values for SDS %s: is <%s>, should be <%s>\n", VAR1_NAME,
                 attr_values, ATTR2_VAL);
         num_errs++;
@@ -203,13 +203,13 @@ test_dim1_SDS1(void)
     status = SDattrinfo(dim_id, 0, attr_name, &num_type, &count);
     CHECK(status, FAIL, "SDattrinfo");
     VERIFY(count, 19, "SDattrinfo");
-    VERIFY(HDstrncmp(attr_name, ATTR1_NAME, 21), 0, "SDattrinfo");
+    VERIFY(strncmp(attr_name, ATTR1_NAME, 21), 0, "SDattrinfo");
 
     /* Read and verify the values of the dimension's first attribute. */
     status = SDreadattr(dim_id, 0, attr_values);
     CHECK(status, FAIL, "SDreadattr");
 
-    if (HDstrncmp(attr_values, ATTR1_VAL, ATTR1_LEN) != 0) {
+    if (strncmp(attr_values, ATTR1_VAL, ATTR1_LEN) != 0) {
         fprintf(stderr, "Unmatched attribute values for dimension %s: is <%s>, should be <%s>\n", VAR1_NAME,
                 attr_values, ATTR1_VAL);
         num_errs++;
@@ -228,8 +228,8 @@ test_dim1_SDS1(void)
 
     for (idx1 = 0; idx1 < dimsize[0]; idx1++)
         if (out_data[idx1] != sds1_data[idx1]) {
-            fprintf(stderr, "Read value (%f) differs from written (%f) at [%d]\n", out_data[idx1],
-                    sds1_data[idx1], idx1);
+            fprintf(stderr, "Read value (%f) differs from written (%f) at [%d]\n", (double)out_data[idx1],
+                    (double)sds1_data[idx1], idx1);
             num_errs++;
         }
 
@@ -398,7 +398,7 @@ test_dim1_SDS2(void)
         for (idx2 = 0; idx2 < dimsize2[1]; idx2++) {
             if (out_data2[idx1][idx2] != sds2_data[idx1][idx2]) {
                 fprintf(stderr, "Read value (%f) differs from written (%f) at [%d][%d]\n",
-                        out_data2[idx1][idx2], sds2_data[idx1][idx2], idx1, idx2);
+                        (double)out_data2[idx1][idx2], (double)sds2_data[idx1][idx2], idx1, idx2);
                 num_errs++;
             }
         }

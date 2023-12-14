@@ -81,9 +81,7 @@
  *
  *---------------------------------------------------------------------------*/
 
-#ifndef MFAN_MASTER /* define main annotation source file */
-#define MFAN_MASTER
-
+#include "mfani.h"
 #include "mfan.h"
 #include "atom.h"
 #include "hfile.h" /* needed for filerec_t */
@@ -139,7 +137,6 @@ dumpentryKey(void *key, void *data)
     }
     else
         printf("(NULL)\n");
-    return;
 } /* dumpentryKey() */
 #endif /* AN_DEBUG */
 
@@ -230,7 +227,7 @@ ANIstart(void)
         HGOTO_ERROR(DFE_CANTINIT, FAIL);
 
 done:
-    return (ret_value);
+    return ret_value;
 } /* end ANIstart() */
 
 /* ------------------------------- ANIinit --------------------------------
@@ -1119,7 +1116,7 @@ done:
 
 /* ------------------------------- ANIcreate -------------------------------
  NAME
-        ANIcreate - create a new annotation and return a handle(id)
+        ANIcreate - create a new annotation for the specified item
 
  DESCRIPTION
     Creates an annotation, returns an 'an_id' to work with the new
@@ -1134,8 +1131,8 @@ done:
 --------------------------------------------------------------------------- */
 static intn
 ANIcreate(int32    file_id,  /* IN: file ID */
-          uint16   elem_tag, /* IN: tag of item to be assigned annotation */
-          uint16   elem_ref, /* IN: reference number of itme to be assigned ann */
+          uint16   elem_tag, /* IN: tag of the item */
+          uint16   elem_ref, /* IN: reference number of the item */
           ann_type type      /* IN: AN_DATA_LABEL for data labels,
                                     AN_DATA_DESC for data descriptions,
                                     AN_FILE_LABEL for file labels,
@@ -1427,7 +1424,7 @@ done:
 
 /* ------------------------------------------------------------------------
  NAME
-        ANcreate - create a new element annotation and return a handle(id)
+        ANcreate - create a new annotation for the specified item
 
  DESCRIPTION
     Creates a data annotation, returns an 'an_id' to work with the new
@@ -1442,8 +1439,8 @@ done:
 --------------------------------------------------------------------------- */
 int32
 ANcreate(int32    an_id,    /* IN: annotation interface ID */
-         uint16   elem_tag, /* IN: tag of item to be assigned annotation */
-         uint16   elem_ref, /* IN: reference number of itme to be assigned ann */
+         uint16   elem_tag, /* IN: tag of item */
+         uint16   elem_ref, /* IN: reference number of the item */
          ann_type type      /* IN: AN_DATA_LABEL for data labels,
                                   AN_DATA_DESC for data descriptions*/)
 {
@@ -2041,5 +2038,3 @@ ANtag2atype(uint16 atag /* IN: annotation tag */)
     } /* switch */
     return atype;
 } /* ANtag2atype */
-
-#endif /* MFAN_MASTER */

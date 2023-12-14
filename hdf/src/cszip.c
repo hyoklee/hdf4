@@ -20,13 +20,22 @@
 #include "szlib.h"
 #endif
 
-#define CSZIP_MASTER
-#define CODER_CLIENT
 /* HDF compression includes */
 #include "hcompi.h" /* Internal definitions for compression */
 
 /* internal defines */
 #define TMP_BUF_SIZE 8192 /* size of throw-away buffer */
+
+/* functions to perform szip encoding */
+funclist_t cszip_funcs = {HCPcszip_stread,
+                          HCPcszip_stwrite,
+                          HCPcszip_seek,
+                          HCPcszip_inquire,
+                          HCPcszip_read,
+                          HCPcszip_write,
+                          HCPcszip_endaccess,
+                          NULL,
+                          NULL};
 
 /* declaration of the functions provided in this module */
 static int32 HCIcszip_staccess(accrec_t *access_rec, int16 acc_mode);
@@ -94,7 +103,7 @@ HCIcszip_init(accrec_t *access_rec)
     szip_info->szip_dirty = SZIP_CLEAN;
 
 done:
-    return (ret_value);
+    return ret_value;
 } /* end HCIcszip_init() */
 
 /*--------------------------------------------------------------------------
@@ -256,7 +265,7 @@ HCIcszip_decode(compinfo_t *info, int32 length, uint8 *buf)
                 free(szip_info->buffer);
                 szip_info->buffer = NULL;
             }
-            return (SUCCEED);
+            return SUCCEED;
         }
 
         /* Decompress the data */
@@ -293,7 +302,7 @@ HCIcszip_decode(compinfo_t *info, int32 length, uint8 *buf)
         /*  can't happen?? panic?? */
         free(szip_info->buffer);
         szip_info->buffer = NULL;
-        return (FAIL);
+        return FAIL;
     }
 
     memcpy(buf, szip_info->buffer + szip_info->buffer_pos, length);
@@ -306,7 +315,7 @@ HCIcszip_decode(compinfo_t *info, int32 length, uint8 *buf)
         szip_info->buffer = NULL;
     }
 
-    return (SUCCEED);
+    return SUCCEED;
 
 #else  /* ifdef H4_HAVE_LIBSZ */
     (void)info;
@@ -373,7 +382,7 @@ HCIcszip_encode(compinfo_t *info, int32 length, const uint8 *buf)
     szip_info->offset     = szip_info->buffer_pos;
     szip_info->szip_dirty = SZIP_DIRTY;
 
-    return (SUCCEED);
+    return SUCCEED;
 
 #else  /* ifdef H4_HAVE_SZIP_ENCODER */
     (void)info;
@@ -425,7 +434,7 @@ HCIcszip_term(compinfo_t *info)
 
     szip_info = &(info->cinfo.coder_info.szip_info);
     if (szip_info->szip_state != SZIP_RUN)
-        return (SUCCEED); /* nothing to do */
+        return SUCCEED; /* nothing to do */
 
     if (szip_info->szip_dirty != SZIP_DIRTY) /* Should never happen?? */
     {
@@ -433,7 +442,7 @@ HCIcszip_term(compinfo_t *info)
             free(szip_info->buffer);
             szip_info->buffer = NULL;
         }
-        return (SUCCEED);
+        return SUCCEED;
     }
 
     szip_info->szip_state = SZIP_TERM;
@@ -507,7 +516,7 @@ HCIcszip_term(compinfo_t *info)
                 free(szip_info->buffer);
                 szip_info->buffer = NULL;
             }
-            return (SUCCEED);
+            return SUCCEED;
         }
 
         /* compress failed, return error */
@@ -540,7 +549,7 @@ HCIcszip_term(compinfo_t *info)
             free(szip_info->buffer);
             szip_info->buffer = NULL;
         }
-        return (SUCCEED);
+        return SUCCEED;
     }
 
     if ((current_size > 0) && (((int32)size_out + 5) < current_size)) {
@@ -563,7 +572,7 @@ HCIcszip_term(compinfo_t *info)
             free(szip_info->buffer);
             szip_info->buffer = NULL;
         }
-        return (SUCCEED);
+        return SUCCEED;
     }
 
     /* Finally!  Write the compressed data. Byte 0 is '0' */
@@ -580,7 +589,7 @@ HCIcszip_term(compinfo_t *info)
     }
     free(out_buffer);
 
-    return (SUCCEED);
+    return SUCCEED;
 
 #else  /* H4_HAVE_SZIP_ENCODER */
     (void)info;
@@ -633,7 +642,7 @@ HCIcszip_staccess(accrec_t *access_rec, int16 acc_mode)
     if (info->aid == FAIL)
         HRETURN_ERROR(DFE_DENIED, FAIL);
 
-    return (HCIcszip_init(access_rec)); /* initialize the SZIP info */
+    return HCIcszip_init(access_rec); /* initialize the SZIP info */
 } /* end HCIcszip_staccess() */
 
 /*--------------------------------------------------------------------------
@@ -662,7 +671,7 @@ HCPcszip_stread(accrec_t *access_rec)
 
     if ((ret = HCIcszip_staccess(access_rec, DFACC_READ)) == FAIL)
         HRETURN_ERROR(DFE_CINIT, FAIL);
-    return (ret);
+    return ret;
 } /* HCPcszip_stread() */
 
 /*--------------------------------------------------------------------------
@@ -691,7 +700,7 @@ HCPcszip_stwrite(accrec_t *access_rec)
 
     if ((ret = HCIcszip_staccess(access_rec, DFACC_WRITE)) == FAIL)
         HRETURN_ERROR(DFE_CINIT, FAIL);
-    return (ret);
+    return ret;
 } /* HCPcszip_stwrite() */
 
 /*--------------------------------------------------------------------------
@@ -748,19 +757,19 @@ HCPcszip_seek(accrec_t *access_rec, int32 offset, int origin)
     {
         if (HCIcszip_decode(info, TMP_BUF_SIZE, tmp_buf) == FAIL) {
             free(tmp_buf);
-            HRETURN_ERROR(DFE_CDECODE, FAIL)
+            HRETURN_ERROR(DFE_CDECODE, FAIL);
         }
     }
     if (szip_info->offset < offset) /* grab the last chunk */
     {
         if (HCIcszip_decode(info, offset - szip_info->offset, tmp_buf) == FAIL) {
             free(tmp_buf);
-            HRETURN_ERROR(DFE_CDECODE, FAIL)
+            HRETURN_ERROR(DFE_CDECODE, FAIL);
         }
     }
 
     free(tmp_buf);
-    return (SUCCEED);
+    return SUCCEED;
 } /* HCPcszip_seek() */
 
 /*--------------------------------------------------------------------------
@@ -794,7 +803,7 @@ HCPcszip_read(accrec_t *access_rec, int32 length, void *data)
     if (HCIcszip_decode(info, length, data) == FAIL)
         HRETURN_ERROR(DFE_CDECODE, FAIL);
 
-    return (length);
+    return length;
 } /* HCPcszip_read() */
 
 /*--------------------------------------------------------------------------
@@ -839,7 +848,7 @@ HCPcszip_write(accrec_t *access_rec, int32 length, const void *data)
     if (HCIcszip_encode(info, length, data) == FAIL)
         HRETURN_ERROR(DFE_CENCODE, FAIL);
 
-    return (length);
+    return length;
 #else /* ifdef H4_HAVE_SZIP_ENCODER */
     (void)access_rec;
     (void)length;
@@ -893,7 +902,7 @@ HCPcszip_inquire(accrec_t *access_rec, int32 *pfile_id, uint16 *ptag, uint16 *pr
     (void)paccess;
     (void)pspecial;
 
-    return (SUCCEED);
+    return SUCCEED;
 } /* HCPcszip_inquire() */
 
 /*--------------------------------------------------------------------------
@@ -934,7 +943,7 @@ HCPcszip_endaccess(accrec_t *access_rec)
     if (Hendaccess(info->aid) == FAIL)
         HRETURN_ERROR(DFE_CANTCLOSE, FAIL);
 
-    return (SUCCEED);
+    return SUCCEED;
 } /* HCPcszip_endaccess() */
 
 /*--------------------------------------------------------------------------
@@ -1037,7 +1046,7 @@ HCPsetup_szip_parms(comp_info *c_info, int32 nt, int32 ncomp, int32 ndims, int32
     c_info->szip.bits_per_pixel = sz * 8;
 
 done:
-    return (ret_value);
+    return ret_value;
 #else
     /* szip not enabled */
     (void)c_info;
@@ -1047,6 +1056,6 @@ done:
     (void)dims;
     (void)cdims;
 
-    return (FAIL);
+    return FAIL;
 #endif
 }

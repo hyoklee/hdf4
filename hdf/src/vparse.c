@@ -65,7 +65,7 @@ scanattrs(const char *attrs, int32 *attrc, char ***attrv)
 {
     char  *s, *s0, *ss;
     intn   len;
-    size_t slen = HDstrlen(attrs) + 1;
+    size_t slen = strlen(attrs) + 1;
 
     if (slen > Vpbufsize) {
         Vpbufsize = slen;
@@ -74,7 +74,7 @@ scanattrs(const char *attrs, int32 *attrc, char ***attrv)
             HRETURN_ERROR(DFE_NOSPACE, FAIL);
     } /* end if */
 
-    HDstrcpy((char *)Vpbuf, attrs);
+    strcpy((char *)Vpbuf, attrs);
     s    = (char *)Vpbuf;
     nsym = 0;
 
@@ -91,7 +91,7 @@ scanattrs(const char *attrs, int32 *attrc, char ***attrv)
             /* make sure we've got a legitimate length */
             len = (intn)(s - s0);
             if (len <= 0)
-                return (FAIL);
+                return FAIL;
 
             /* save that token */
             ss = symptr[nsym] = sym[nsym];
@@ -122,7 +122,7 @@ scanattrs(const char *attrs, int32 *attrc, char ***attrv)
     /* save the last token */
     len = (intn)(s - s0);
     if (len <= 0)
-        return (FAIL);
+        return FAIL;
     ss = symptr[nsym] = sym[nsym];
     nsym++;
 
@@ -134,7 +134,7 @@ scanattrs(const char *attrs, int32 *attrc, char ***attrv)
     *attrc       = nsym;
     *attrv       = (char **)symptr;
 
-    return (SUCCEED); /* ok */
+    return SUCCEED; /* ok */
 } /* scanattrs */
 
 /*******************************************************************************

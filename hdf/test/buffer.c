@@ -278,7 +278,7 @@ read_test(int32 aid)
         acc_time += (end_time.tv_sec - start_time.tv_sec) * FACTOR + (end_time.tv_usec - start_time.tv_usec);
     } /* end for */
 
-    return (acc_time);
+    return acc_time;
 } /* end read_test() */
 
 static long
@@ -401,7 +401,7 @@ write_test(int32 aid, intn num_timings)
         acc_time += (end_time.tv_sec - start_time.tv_sec) * FACTOR + (end_time.tv_usec - start_time.tv_usec);
     } /* end for */
 
-    return (acc_time);
+    return acc_time;
 } /* end read_test() */
 
 int
@@ -448,7 +448,7 @@ main(int argc, char *argv[])
 
     MESSAGE(6, printf("Starting buffered element test (elemsize=%d)\n", elemsize);)
 
-    if (Cache) /* turn on caching, unless we were instucted not to */
+    if (Cache) /* turn on caching, unless we were instructed not to */
         Hcache(CACHE_ALL_FILES, TRUE);
 
     /* fill the buffer with interesting data to compress */
@@ -519,10 +519,10 @@ main(int argc, char *argv[])
         CHECK(ret, FAIL, "Hendaccess");
 
         MESSAGE(3, {
-            printf("Unbuffered read time=%f seconds\n", ((float)read_time[test_num][0] / FACTOR));
-            printf("Unbuffered write time=%f seconds\n", ((float)write_time[test_num][0] / FACTOR));
-            printf("Buffered read time=%f seconds\n", ((float)read_time[test_num][1] / FACTOR));
-            printf("Buffered write time=%f seconds\n", ((float)write_time[test_num][1] / FACTOR));
+            printf("Unbuffered read time=%f seconds\n", ((double)read_time[test_num][0] / FACTOR));
+            printf("Unbuffered write time=%f seconds\n", ((double)write_time[test_num][0] / FACTOR));
+            printf("Buffered read time=%f seconds\n", ((double)read_time[test_num][1] / FACTOR));
+            printf("Buffered write time=%f seconds\n", ((double)write_time[test_num][1] / FACTOR));
         })
 
     } /* end for */

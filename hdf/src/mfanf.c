@@ -49,7 +49,6 @@
  *---------------------------------------------------------------------------*/
 
 #include "hdf.h"
-#include "mfan.h"
 #include "hproto_fortran.h"
 
 /*-----------------------------------------------------------------------------
@@ -83,7 +82,7 @@ nafstart(intf *file_id)
 
     ret = ANstart((int32)*file_id);
 
-    return (ret);
+    return ret;
 }
 
 /*-----------------------------------------------------------------------------
@@ -276,7 +275,7 @@ nafwriteann(intf *ann_id, _fcd ann, intf *annlen)
     /* Convert fortran string to C-String */
     iann = HDf2cstring(ann, (intn)*annlen);
     if (!iann)
-        return (FAIL);
+        return FAIL;
 
     status = ANwriteann((int32)*ann_id, (char *)_fcdtocp(ann), (int32)*annlen);
 

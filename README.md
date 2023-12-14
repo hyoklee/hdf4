@@ -1,8 +1,9 @@
 HDF version 4.2.17-1 currently under development
 
-![HDF Logo](doc/img/HDF.png)
+![HDF Logo](doc/img/HDF4.png)
 
 [![master build status](https://img.shields.io/github/actions/workflow/status/HDFGroup/hdf4/main.yml?branch=master&label=master)](https://github.com/HDFGroup/hdf4/actions?query=branch%3Amaster)
+[![HDF-EOS build status](https://img.shields.io/github/actions/workflow/status/HDFGroup/hdf4/hdfeos2.yml?branch=master&label=HDF-EOS)](https://github.com/HDFGroup/hdf4/actions?query=branch%3Amaster)
 [![BSD](https://img.shields.io/badge/License-BSD-blue.svg)](https://github.com/HDFGroup/hdf4/blob/develop/COPYING)
 
 DOCUMENTATION
@@ -52,6 +53,18 @@ HDF4 does not release on a regular schedule. Instead, releases are driven by
 new features and bug fixes, though we try to have at least one release of each
 maintenance branch per year. Future HDF4 releases indicated on this schedule
 are tentative.
+
+| Release | New Features |
+| ------- | ------------ |
+| 4.3.0 | Remove XDR, drop FORTRAN 77 support, stop deploying internal header files |
+
+HDF4 4.3.0 will clean up some long-standing issues in the library
+* The problematic XDR library will be replaced with a thin I/O layer that correctly handles long integer data on all platforms
+* We will drop support for FORTRAN 77 so the wrappers can be built like they are in HDF5
+* We will also no longer deploy undocumented, internal header files (the public, documented HDF4 API will not be affected)
+
+The 4.2 maintenance line will be retired when 4.3.0 releases. There are no
+more planned HDF4 4.2.x releases.
 
 
 SNAPSHOTS, PREVIOUS RELEASES AND SOURCE CODE

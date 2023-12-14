@@ -52,8 +52,7 @@
  *          Note that rseq does its own compression, because that is part of
  *          the interactive color raster protocol
  *          The space needed for compression and decompression can be allocated
- *          statically or dynamically, depending on the DF_DYNAMIC flag, and
- *          for entire image or part of it (reused) depending on availability
+ *          for the entire image or part of it (reused) depending on availability
  *          Accordingly, writing out is whole image, or row by row
  *          Note that compression is always row by row for RLE.
  *---------------------------------------------------------------------------*/
@@ -153,9 +152,9 @@ DFputcomp(int32 file_id, uint16 tag, uint16 ref, const uint8 *image, int32 xdim,
             break;
 
         default: /* unknown compression scheme */
-            HRETURN_ERROR(DFE_BADSCHEME, FAIL)
+            HRETURN_ERROR(DFE_BADSCHEME, FAIL);
     }
-    return ((intn)ret);
+    return (intn)ret;
 } /* end DFputcomp() */
 
 /*-----------------------------------------------------------------------------
@@ -195,7 +194,7 @@ DFgetcomp(int32 file_id, uint16 tag, uint16 ref, uint8 *image, int32 xdim, int32
     /* code easier to follow */
     if (scheme == DFTAG_JPEG5 || scheme == DFTAG_GREYJPEG5 || scheme == DFTAG_JPEG ||
         scheme == DFTAG_GREYJPEG)
-        return (DFCIunjpeg(file_id, tag, ref, (void *)image, xdim, ydim, (int16)scheme));
+        return DFCIunjpeg(file_id, tag, ref, (void *)image, xdim, ydim, (int16)scheme);
 
     /* Only do this stuff for non-JPEG compressed images */
     aid = Hstartread(file_id, tag, ref);
@@ -214,7 +213,7 @@ DFgetcomp(int32 file_id, uint16 tag, uint16 ref, uint8 *image, int32 xdim, int32
                 buffer = (uint8 *)malloc((uint32)crowsize);
                 if (!buffer) {
                     Hendaccess(aid);
-                    HRETURN_ERROR(DFE_NOSPACE, FAIL)
+                    HRETURN_ERROR(DFE_NOSPACE, FAIL);
                 } /* end if */
                 buflen = crowsize;
             } /* end if */
@@ -226,7 +225,7 @@ DFgetcomp(int32 file_id, uint16 tag, uint16 ref, uint8 *image, int32 xdim, int32
             if ((n = Hread(aid, buflen, in)) < 0) {
                 free(buffer);
                 Hendaccess(aid);
-                HRETURN_ERROR(DFE_READERROR, FAIL)
+                HRETURN_ERROR(DFE_READERROR, FAIL);
             } /* end if */
             totalread = n;
             bufleft   = n;
@@ -243,7 +242,7 @@ DFgetcomp(int32 file_id, uint16 tag, uint16 ref, uint8 *image, int32 xdim, int32
                     if ((n = Hread(aid, buflen - bufleft, (uint8 *)&in[bufleft])) < 0) {
                         free(buffer);
                         Hendaccess(aid);
-                        HRETURN_ERROR(DFE_READERROR, FAIL)
+                        HRETURN_ERROR(DFE_READERROR, FAIL);
                     } /* end if */
                     totalread += n;
                     bufleft += n;
@@ -262,7 +261,7 @@ DFgetcomp(int32 file_id, uint16 tag, uint16 ref, uint8 *image, int32 xdim, int32
                 buffer = (uint8 *)malloc((uint32)crowsize);
                 if (!buffer) {
                     Hendaccess(aid);
-                    HRETURN_ERROR(DFE_NOSPACE, FAIL)
+                    HRETURN_ERROR(DFE_NOSPACE, FAIL);
                 } /* end if */
                 buflen = crowsize;
             } /* end if */
@@ -272,7 +271,7 @@ DFgetcomp(int32 file_id, uint16 tag, uint16 ref, uint8 *image, int32 xdim, int32
                 if (Hread(aid, cisize, buffer) < cisize) {
                     free(buffer);
                     Hendaccess(aid);
-                    HRETURN_ERROR(DFE_READERROR, FAIL)
+                    HRETURN_ERROR(DFE_READERROR, FAIL);
                 }
                 Hendaccess(aid);
                 DFCIunimcomp(xdim, ydim, buffer, image);
@@ -285,7 +284,7 @@ DFgetcomp(int32 file_id, uint16 tag, uint16 ref, uint8 *image, int32 xdim, int32
             if ((n = Hread(aid, buflen, in)) < 0) {
                 free(buffer);
                 Hendaccess(aid);
-                HRETURN_ERROR(DFE_READERROR, FAIL)
+                HRETURN_ERROR(DFE_READERROR, FAIL);
             } /* end if */
             totalread = n;
             bufleft   = n;
@@ -300,7 +299,7 @@ DFgetcomp(int32 file_id, uint16 tag, uint16 ref, uint8 *image, int32 xdim, int32
                     if ((n = Hread(aid, buflen - bufleft, (uint8 *)&in[bufleft])) < 0) {
                         free(buffer);
                         Hendaccess(aid);
-                        HRETURN_ERROR(DFE_READERROR, FAIL)
+                        HRETURN_ERROR(DFE_READERROR, FAIL);
                     } /* end if */
                     totalread += n;
                     bufleft += n;
@@ -312,7 +311,7 @@ DFgetcomp(int32 file_id, uint16 tag, uint16 ref, uint8 *image, int32 xdim, int32
             break;
 
         default: /* unknown scheme */
-            HRETURN_ERROR(DFE_ARGS, FAIL)
+            HRETURN_ERROR(DFE_ARGS, FAIL);
     } /* end switch */
 
     return SUCCEED;

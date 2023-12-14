@@ -35,8 +35,6 @@
 /* General HDF includes */
 #include "hdf.h"
 
-#define CRLE_MASTER
-#define CODER_CLIENT
 /* HDF compression includes */
 #include "hcompi.h" /* Internal definitions for compression */
 
@@ -45,7 +43,16 @@
 #define RUN_MASK     0x80 /* bit mask for run-length control bytes */
 #define COUNT_MASK   0x7f /* bit mask for count of run or mix */
 
-/* #define TESTING */
+/* functions to perform run-length encoding */
+funclist_t crle_funcs = {HCPcrle_stread,
+                         HCPcrle_stwrite,
+                         HCPcrle_seek,
+                         HCPcrle_inquire,
+                         HCPcrle_read,
+                         HCPcrle_write,
+                         HCPcrle_endaccess,
+                         NULL,
+                         NULL};
 
 /* declaration of the functions provided in this module */
 static int32 HCIcrle_staccess(accrec_t *access_rec, int16 acc_mode);
@@ -96,7 +103,7 @@ HCIcrle_init(accrec_t *access_rec)
     rle_info->second_byte = (uintn)RLE_NIL; /* start with no code here too */
     rle_info->offset      = 0;              /* offset into the file */
 
-    return (SUCCEED);
+    return SUCCEED;
 } /* end HCIcrle_init() */
 
 /*--------------------------------------------------------------------------
@@ -171,7 +178,7 @@ HCIcrle_decode(compinfo_t *info, int32 length, uint8 *buf)
     }                                       /* end while */
 
     rle_info->offset += orig_length; /* incr. abs. offset into the file */
-    return (SUCCEED);
+    return SUCCEED;
 } /* end HCIcrle_decode() */
 
 /*--------------------------------------------------------------------------
@@ -278,12 +285,12 @@ HCIcrle_encode(compinfo_t *info, int32 length, const uint8 *buf)
                 break;
 
             default:
-                HRETURN_ERROR(DFE_INTERNAL, FAIL)
+                HRETURN_ERROR(DFE_INTERNAL, FAIL);
         } /* end switch */
     }     /* end while */
 
     rle_info->offset += orig_length; /* incr. abs. offset into the file */
-    return (SUCCEED);
+    return SUCCEED;
 } /* end HCIcrle_encode() */
 
 /*--------------------------------------------------------------------------
@@ -330,12 +337,12 @@ HCIcrle_term(compinfo_t *info)
             break;
 
         default:
-            HRETURN_ERROR(DFE_INTERNAL, FAIL)
+            HRETURN_ERROR(DFE_INTERNAL, FAIL);
     } /* end switch */
     rle_info->rle_state   = RLE_INIT;
     rle_info->second_byte = rle_info->last_byte = (uintn)RLE_NIL;
 
-    return (SUCCEED);
+    return SUCCEED;
 } /* end HCIcrle_term() */
 
 /*--------------------------------------------------------------------------
@@ -373,7 +380,7 @@ HCIcrle_staccess(accrec_t *access_rec, int16 acc_mode)
 
     if (info->aid == FAIL)
         HRETURN_ERROR(DFE_DENIED, FAIL);
-    return (HCIcrle_init(access_rec)); /* initialize the RLE info */
+    return HCIcrle_init(access_rec); /* initialize the RLE info */
 } /* end HCIcrle_staccess() */
 
 /*--------------------------------------------------------------------------
@@ -402,7 +409,7 @@ HCPcrle_stread(accrec_t *access_rec)
 
     if ((ret = HCIcrle_staccess(access_rec, DFACC_READ)) == FAIL)
         HRETURN_ERROR(DFE_CINIT, FAIL);
-    return (ret);
+    return ret;
 } /* HCPcrle_stread() */
 
 /*--------------------------------------------------------------------------
@@ -431,7 +438,7 @@ HCPcrle_stwrite(accrec_t *access_rec)
 
     if ((ret = HCIcrle_staccess(access_rec, DFACC_WRITE)) == FAIL)
         HRETURN_ERROR(DFE_CINIT, FAIL);
-    return (ret);
+    return ret;
 } /* HCPcrle_stwrite() */
 
 /*--------------------------------------------------------------------------
@@ -484,16 +491,16 @@ HCPcrle_seek(accrec_t *access_rec, int32 offset, int origin)
     while (rle_info->offset + TMP_BUF_SIZE < offset) /* grab chunks */
         if (HCIcrle_decode(info, TMP_BUF_SIZE, tmp_buf) == FAIL) {
             free(tmp_buf);
-            HRETURN_ERROR(DFE_CDECODE, FAIL)
+            HRETURN_ERROR(DFE_CDECODE, FAIL);
         }                          /* end if */
     if (rle_info->offset < offset) /* grab the last chunk */
         if (HCIcrle_decode(info, offset - rle_info->offset, tmp_buf) == FAIL) {
             free(tmp_buf);
-            HRETURN_ERROR(DFE_CDECODE, FAIL)
+            HRETURN_ERROR(DFE_CDECODE, FAIL);
         }
 
     free(tmp_buf);
-    return (SUCCEED);
+    return SUCCEED;
 } /* HCPcrle_seek() */
 
 /*--------------------------------------------------------------------------
@@ -527,7 +534,7 @@ HCPcrle_read(accrec_t *access_rec, int32 length, void *data)
     if (HCIcrle_decode(info, length, data) == FAIL)
         HRETURN_ERROR(DFE_CDECODE, FAIL);
 
-    return (length);
+    return length;
 } /* HCPcrle_read() */
 
 /*--------------------------------------------------------------------------
@@ -570,7 +577,7 @@ HCPcrle_write(accrec_t *access_rec, int32 length, const void *data)
     if (HCIcrle_encode(info, length, data) == FAIL)
         HRETURN_ERROR(DFE_CENCODE, FAIL);
 
-    return (length);
+    return length;
 } /* HCPcrle_write() */
 
 /*--------------------------------------------------------------------------
@@ -616,7 +623,7 @@ HCPcrle_inquire(accrec_t *access_rec, int32 *pfile_id, uint16 *ptag, uint16 *pre
     (void)paccess;
     (void)pspecial;
 
-    return (SUCCEED);
+    return SUCCEED;
 } /* HCPcrle_inquire() */
 
 /*--------------------------------------------------------------------------
@@ -656,5 +663,5 @@ HCPcrle_endaccess(accrec_t *access_rec)
     if (Hendaccess(info->aid) == FAIL)
         HRETURN_ERROR(DFE_CANTCLOSE, FAIL);
 
-    return (SUCCEED);
+    return SUCCEED;
 } /* HCPcrle_endaccess() */

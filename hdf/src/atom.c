@@ -53,10 +53,57 @@ MODIFICATION HISTORY
    1/7/96  - Finished coding prototype
 */
 
-#define ATOM_MASTER
 #include "hdf.h"
 #include "atom.h"
+
 #include <assert.h>
+
+/* # of bits to use for Group ID in each atom (change if MAXGROUP>16) */
+#define GROUP_BITS 4
+#define GROUP_MASK 0x0F
+
+/* # of bits to use for the Atom index in each atom (change if MAXGROUP>16) */
+#define ATOM_BITS 28
+#define ATOM_MASK 0x0FFFFFFF
+
+/* # of previous atoms cached, change inline caching macros (HAatom_object & HAIswap_cache) if this changes */
+#define ATOM_CACHE_SIZE 4
+
+/* Map an atom to a Group number */
+#define ATOM_TO_GROUP(a) ((group_t)((((atom_t)(a)) >> ((sizeof(atom_t) * 8) - GROUP_BITS)) & GROUP_MASK))
+
+/* Map an atom to a hash location (assumes s is a power of 2 and smaller than the ATOM_MASK constant) */
+#define ATOM_TO_LOC(a, s) ((atom_t)(a) & ((s)-1))
+
+/* Combine a Group number and an atom index into an atom */
+#define MAKE_ATOM(g, i)                                                                                      \
+    ((((atom_t)(g)&GROUP_MASK) << ((sizeof(atom_t) * 8) - GROUP_BITS)) | ((atom_t)(i)&ATOM_MASK))
+
+/* Atom information structure used */
+typedef struct atom_info_struct_tag {
+    atom_t                       id;      /* atom ID for this info */
+    void                       **obj_ptr; /* pointer associated with the atom */
+    struct atom_info_struct_tag *next;    /* link to next atom (in case of hash-clash) */
+} atom_info_t;
+
+/* Atom group structure used */
+typedef struct atom_group_struct_tag {
+    uintn         count;     /* # of times this group has been initialized */
+    intn          hash_size; /* size of the hash table to store the atoms in */
+    uintn         atoms;     /* current number of atoms held */
+    uintn         nextid;    /* atom ID to use for the next atom */
+    atom_info_t **atom_list; /* pointer to an array of ptrs to atoms */
+} atom_group_t;
+
+/* Array of pointers to atomic groups */
+static atom_group_t *atom_group_list[MAXGROUP] = {NULL};
+
+/* Pointer to the atom node free list */
+static atom_info_t *atom_free_list = NULL;
+
+/* Array of pointers to atomic groups */
+atom_t atom_id_cache[ATOM_CACHE_SIZE]  = {-1, -1, -1, -1};
+void  *atom_obj_cache[ATOM_CACHE_SIZE] = {NULL};
 
 /* Private function prototypes */
 static atom_info_t *HAIfind_atom(atom_t atm);
@@ -74,6 +121,8 @@ static void HAIrelease_atom_node(atom_info_t *atm);
     been initialized, this routine just increments the count of # of
     initializations and returns without trying to change the size of the hash
     table.
+
+    NOTE: The hash size MUST be a power of 2 (checked in code)
 
  RETURNS
     Returns SUCCEED if successful and FAIL otherwise
@@ -94,10 +143,11 @@ HAinit_group(group_t grp,      /* IN: Group to initialize */
     /* Assertion necessary for faster pointer swapping */
     assert(sizeof(hdf_pint_t) == sizeof(void *));
 
-#ifdef HASH_SIZE_POWER_2
+    /* Ensure hash_size is not zero and a power of two */
+    if (hash_size == 0)
+        HGOTO_ERROR(DFE_ARGS, FAIL);
     if (hash_size & (hash_size - 1))
         HGOTO_ERROR(DFE_ARGS, FAIL);
-#endif /* HASH_SIZE_POWER_2 */
 
     if (atom_group_list[grp] == NULL) { /* Allocate the group information */
         grp_ptr = (atom_group_t *)calloc(1, sizeof(atom_group_t));
@@ -555,5 +605,5 @@ HAshutdown(void)
             free(atom_group_list[i]);
             atom_group_list[i] = NULL;
         } /* end if */
-    return (SUCCEED);
+    return SUCCEED;
 } /* end HAshutdown() */

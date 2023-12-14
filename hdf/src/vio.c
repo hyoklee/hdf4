@@ -108,7 +108,7 @@ VSIget_vdata_node(void)
     memset(ret_value, 0, sizeof(VDATA));
 
 done:
-    return (ret_value);
+    return ret_value;
 } /* VSIget_vdata_node */
 
 /******************************************************************************
@@ -164,7 +164,7 @@ VSIget_vsinstance_node(void)
     memset(ret_value, 0, sizeof(vsinstance_t));
 
 done:
-    return (ret_value);
+    return ret_value;
 } /* VSIget_vsinstance_node */
 
 /******************************************************************************
@@ -296,7 +296,7 @@ int32
 vexistvs(HFILEID f, /* IN: file handle */
          uint16  vsid /* IN: vdata id i.e. ref */)
 {
-    return ((NULL == vsinst(f, vsid)) ? FAIL : TRUE);
+    return (NULL == vsinst(f, vsid)) ? FAIL : TRUE;
 } /* vexistvs */
 
 /* ------------------------------------------------------------------ */
@@ -400,26 +400,26 @@ vpackvs(VDATA *vs,    /* IN/OUT: */
 
         /* save each field length and name - omit the null */
         for (i = 0; i < vs->wlist.n; i++) {
-            slen = HDstrlen(vs->wlist.name[i]);
+            slen = strlen(vs->wlist.name[i]);
             INT16ENCODE(bb, slen);
 
-            HDstrcpy((char *)bb, vs->wlist.name[i]);
+            strcpy((char *)bb, vs->wlist.name[i]);
             bb += slen;
         }
     } /* end if */
 
     /* save the vsnamelen and vsname - omit the null */
-    slen = HDstrlen(vs->vsname);
+    slen = strlen(vs->vsname);
     INT16ENCODE(bb, slen);
 
-    HDstrcpy((char *)bb, vs->vsname);
+    strcpy((char *)bb, vs->vsname);
     bb += slen;
 
     /* save the vsclasslen and vsclass- omit the null */
-    slen = HDstrlen(vs->vsclass);
+    slen = strlen(vs->vsclass);
     INT16ENCODE(bb, slen);
 
-    HDstrcpy((char *)bb, vs->vsclass);
+    strcpy((char *)bb, vs->vsclass);
     bb += slen;
 
     /* save the expansion tag/ref pair */
@@ -1037,7 +1037,7 @@ VSdetach(int32 vkey /* IN: vdata key? */)
             if (FAIL == vpackvs(vs, Vhbuf, &vspacksize))
                 HGOTO_ERROR(DFE_INTERNAL, FAIL);
 
-            /* if VH size changed we need to re-use the tag/ref
+            /* if VH size changed we need to reuse the tag/ref
              * for new header. This will cause the pointer to the
              * original vdata header to be lost but this is okay.  */
             if (vs->new_h_sz) {

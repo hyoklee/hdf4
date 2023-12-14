@@ -23,7 +23,7 @@
 #include "tbbt.h"
 
 #define KEYcmp(k1, k2, a)                                                                                    \
-    ((NULL != compar) ? (*compar)(k1, k2, a) : memcmp(k1, k2, 0 < (a) ? (a) : (intn)HDstrlen(k1)))
+    ((NULL != compar) ? (*compar)(k1, k2, a) : memcmp(k1, k2, 0 < (a) ? (a) : (intn)strlen(k1)))
 
 void tbbt1dump(TBBT_NODE *node, intn method);
 
@@ -35,30 +35,28 @@ extern void tbbt_dump(TBBT_TREE *ptree, void (*key_dump)(void *, void *), intn m
 static TBBT_NODE *tbbt_get_node(void);
 static void       tbbt_release_node(TBBT_NODE *nod);
 
-/* #define TESTING */
-
 /* Returns pointer to end-most (to LEFT or RIGHT) node of tree: */
 static TBBT_NODE *
 tbbt_end(TBBT_NODE *root, intn side)
 {
     if (root == NULL)
-        return (NULL);
+        return NULL;
     while (HasChild(root, side)) {
         root = root->link[side];
     }
-    return (root);
+    return root;
 }
 
 TBBT_NODE *
 tbbtfirst(TBBT_NODE *root)
 {
-    return (tbbt_end(root, LEFT));
+    return tbbt_end(root, LEFT);
 }
 
 TBBT_NODE *
 tbbtlast(TBBT_NODE *root)
 {
-    return (tbbt_end(root, RIGHT));
+    return tbbt_end(root, RIGHT);
 }
 
 /* Return address of parent's pointer to neighboring node (to LEFT or RIGHT) **
@@ -81,28 +79,28 @@ tbbt_nbr(TBBT_NODE *ptr, intn side)
     /* return( *tbbt_anbr(ptr,side) ); */
 
     if (!HasChild(ptr, side))
-        return (ptr->link[side]);
-    /*        return(NULL); */
+        return ptr->link[side];
+    /*        return NULL; */
     ptr = ptr->link[side];
     if (ptr == NULL)
-        return (NULL);
+        return NULL;
     while (HasChild(ptr, Other(side)))
         ptr = ptr->link[Other(side)];
-    return (ptr);
+    return ptr;
 }
 
 /* Returns pointer to node with previous key value: */
 TBBT_NODE *
 tbbtnext(TBBT_NODE *node)
 {
-    return (tbbt_nbr(node, RIGHT));
+    return tbbt_nbr(node, RIGHT);
 }
 
 /* Returns pointer to node with next key value: */
 TBBT_NODE *
 tbbtprev(TBBT_NODE *node)
 {
-    return (tbbt_nbr(node, LEFT));
+    return tbbt_nbr(node, LEFT);
 }
 
 /* tbbtfind -- Look up a node in a tree based on a key value */
@@ -128,7 +126,7 @@ tbbtfind(TBBT_NODE *root, void *key, intn (*compar)(void *, void *, intn), intn 
     }
     if (NULL != pp)
         *pp = parent;
-    return ((0 == cmp) ? ptr : NULL);
+    return (0 == cmp) ? ptr : NULL;
 }
 
 /* tbbtffind -- Look up a node in a tree based on a key value */
@@ -156,7 +154,7 @@ tbbtffind(TBBT_NODE *root, void *key, uintn fast_compare, TBBT_NODE **pp)
             }
             if (NULL != pp)
                 *pp = parent;
-            return ((0 == cmp) ? ptr : NULL);
+            return (0 == cmp) ? ptr : NULL;
 
         case TBBT_FAST_INT32_COMPARE:
             if (ptr) {
@@ -172,10 +170,10 @@ tbbtffind(TBBT_NODE *root, void *key, uintn fast_compare, TBBT_NODE **pp)
             }
             if (NULL != pp)
                 *pp = parent;
-            return ((0 == cmp) ? ptr : NULL);
+            return (0 == cmp) ? ptr : NULL;
 
         default:
-            return (NULL);
+            return NULL;
     } /* end switch */
 } /* tbbtffind() */
 
@@ -185,11 +183,11 @@ TBBT_NODE *
 tbbtdfind(TBBT_TREE *tree, void *key, TBBT_NODE **pp)
 {
     if (tree == NULL)
-        return (NULL);
+        return NULL;
     if (tree->fast_compare != 0)
-        return (tbbtffind(tree->root, key, tree->fast_compare, pp));
+        return tbbtffind(tree->root, key, tree->fast_compare, pp);
     else
-        return (tbbtfind(tree->root, key, tree->compar, tree->cmparg, pp));
+        return tbbtfind(tree->root, key, tree->compar, tree->cmparg, pp);
 }
 
 /* tbbtless -- Find a node in a tree which is less than a key, */
@@ -229,7 +227,7 @@ tbbtless(TBBT_NODE *root, void *key, intn (*compar)(void *, void *, intn), intn 
     } /* end if */
     if (NULL != pp)
         *pp = parent;
-    return ((0 == cmp) ? ptr : NULL);
+    return (0 == cmp) ? ptr : NULL;
 }
 
 /* tbbtdless -- Find a node less than a key in a "described" tree */
@@ -238,8 +236,8 @@ TBBT_NODE *
 tbbtdless(TBBT_TREE *tree, void *key, TBBT_NODE **pp)
 {
     if (tree == NULL)
-        return (NULL);
-    return (tbbtless(tree->root, key, tree->compar, tree->cmparg, pp));
+        return NULL;
+    return tbbtless(tree->root, key, tree->compar, tree->cmparg, pp);
 }
 
 /* tbbtindx -- Look up the Nth node (in key order) */
@@ -256,7 +254,7 @@ tbbtindx(TBBT_NODE *root, int32 indx)
 
     /* I believe indx is 1 based */
     if (NULL == ptr || indx < 1)
-        return (NULL);
+        return NULL;
     /* Termination condition is if the index equals the number of children on
        out left plus the current node */
     while (ptr != NULL && indx != ((int32)LeftCnt(ptr)) + 1) {
@@ -269,9 +267,9 @@ tbbtindx(TBBT_NODE *root, int32 indx)
             ptr = ptr->Rchild;
         }
         else
-            return (NULL); /* Only `indx' or fewer nodes in tree */
+            return NULL; /* Only `indx' or fewer nodes in tree */
     }
-    return (ptr);
+    return ptr;
 }
 
 /* swapkid -- Often referred to as "rotating" nodes.  ptr and ptr's `side'
@@ -344,7 +342,7 @@ swapkid(TBBT_NODE **root, TBBT_NODE *ptr, intn side)
         ptr->rcnt = klcnt;
     } /* end if */
     ptr->flags = ptrflg;
-    return (kid);
+    return kid;
 }
 
 /* balance -- Move up tree, incrimenting number of left children when needed
@@ -483,7 +481,7 @@ tbbtins(TBBT_NODE **root, void *item, void *key,
     TBBT_NODE *ptr, *parent;
 
     if (NULL != tbbtfind(*root, (key ? key : item), compar, arg, &parent) || NULL == (ptr = tbbt_get_node()))
-        return (NULL);
+        return NULL;
     ptr->data   = item;
     ptr->key    = key ? key : item;
     ptr->Parent = parent;
@@ -493,7 +491,7 @@ tbbtins(TBBT_NODE **root, void *item, void *key,
     if (NULL == parent) { /* Adding first node to tree: */
         *root       = ptr;
         ptr->Lchild = ptr->Rchild = NULL;
-        return (ptr);
+        return ptr;
     }
     cmp = KEYcmp(ptr->key, parent->key, arg);
     if (cmp < 0) {
@@ -507,7 +505,7 @@ tbbtins(TBBT_NODE **root, void *item, void *key,
         parent->Rchild = ptr;
     }
     balance(root, parent, (cmp < 0) ? LEFT : RIGHT, 1);
-    return (ptr);
+    return ptr;
 }
 
 /* tbbtdins -- Insert a node into a "described" tree */
@@ -518,11 +516,11 @@ tbbtdins(TBBT_TREE *tree, void *item, void *key)
     TBBT_NODE *ret_node; /* the node to return */
 
     if (tree == NULL)
-        return (NULL);
+        return NULL;
     ret_node = tbbtins(&(tree->root), item, key, tree->compar, tree->cmparg);
     if (ret_node != NULL)
         tree->count++;
-    return (ret_node);
+    return ret_node;
 }
 
 /* tbbtrem -- Remove a node from a tree.  You pass in the address of the
@@ -546,7 +544,7 @@ tbbtrem(TBBT_NODE **root, TBBT_NODE *node, void **kp)
     void      *data; /* Saved pointer to data item of deleted node */
 
     if (NULL == root || NULL == node)
-        return (NULL); /* Argument couldn't find node to delete */
+        return NULL;   /* Argument couldn't find node to delete */
     data = node->data; /* Save pointer to data item to be returned at end */
     if (NULL != kp)
         *kp = node->key;
@@ -588,7 +586,7 @@ tbbtrem(TBBT_NODE **root, TBBT_NODE *node, void **kp)
                 *root = NULL;
             } /* end else */
             tbbt_release_node(node);
-            return (data);
+            return data;
         }
         side = (par->Rchild == leaf) ? RIGHT : LEFT;
         next = leaf->link[side];
@@ -643,7 +641,7 @@ tbbtrem(TBBT_NODE **root, TBBT_NODE *node, void **kp)
     tbbt_release_node(leaf);
     balance(root, par, side, -1);
     ((TBBT_TREE *)root)->count--;
-    return (data);
+    return data;
 }
 
 /* tbbtdmake - Allocate a new tree description record for an empty tree */
@@ -663,38 +661,6 @@ tbbtdmake(intn (*cmp)(void * /* k1 */, void * /* k2 */, intn /* arg */), intn ar
 
     return tree;
 }
-
-#ifdef WASTE_STACK
-/* You can have a very simple recursive version that wastes lots of stack
- * space, this next less-simple recursive version that wastes less stack space,
- * or the last non-recursive version which isn't simple but saves stack space.
- */
-static void (*FD)(void *item), (*FK)(void *key);
-static void
-tbbt1free(TBBT_NODE *node)
-{
-    if (HasChild(node, LEFT))
-        tbbt1free(node->Lchild);
-    if (HasChild(node, RIGHT))
-        tbbt1free(node->Rchild);
-    if (NULL != FD)
-        (*FD)(node->data);
-    if (NULL != FK)
-        (*FK)(node->key);
-    tbbt_release_node(node);
-}
-
-void
-tbbtfree(TBBT_NODE **root, void (*fd)(void *item), void (*fk)(void *key))
-{
-    if (NULL == *root)
-        return;
-    FD = fd;
-    FK = fk;
-    tbbt1free(*root);
-    *root = NULL;
-}
-#else  /* WASTE_STACK */
 
 /* tbbtfree() - Free an entire tree not allocated with tbbtdmake(). */
 void
@@ -734,7 +700,6 @@ tbbtfree(TBBT_NODE **root, void (*fd)(void * /* item */), void (*fk)(void * /* k
         } while (NULL != par); /* While moving back up tree */
     }
 }
-#endif /* WASTE_STACK */
 
 void
 tbbtprint(TBBT_NODE *node)
@@ -856,7 +821,6 @@ tbbt_dump(TBBT_TREE *ptree, void (*key_dump)(void *, void *), intn method)
     printf("capacity = %ld\n", (long)tree->count);
     printf("\n");
     tbbt_dumpNode(tree->root, key_dump, method);
-    return;
 }
 
 /* Always returns NULL */

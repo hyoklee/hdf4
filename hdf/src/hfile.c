@@ -112,10 +112,7 @@
 
 #include <string.h>
 
-#define HMASTER
 #include "hdf.h"
-#undef HMASTER
-#define HFILE_MASTER
 #include "hfile.h"
 #include <errno.h>
 #include "glist.h" /* for double-linked lists, stacks and queues */
@@ -131,6 +128,14 @@ static Generic_list *cleanup_list      = NULL;
 
 /* Whether to install the atexit routine */
 static intn install_atexit = TRUE;
+
+/* Pointer to the access record node free list */
+static accrec_t *accrec_free_list = NULL;
+
+#ifdef DISKBLOCK_DEBUG
+const uint8 diskblock_header[4] = {0xde, 0xad, 0xbe, 0xef};
+const uint8 diskblock_tail[4]   = {0xfe, 0xeb, 0xda, 0xed};
+#endif
 
 /*--------------------- Externally defined Globals --------------------------*/
 /* Function tables declarations.  These function tables contain pointers
@@ -198,8 +203,6 @@ static intn HIcheckfileversion(int32 file_id);
 static intn HIsync(filerec_t *file_rec);
 
 static intn HIstart(void);
-
-/* #define TESTING */
 
 /*--------------------------------------------------------------------------
 NAME
@@ -2042,7 +2045,7 @@ HDdont_atexit(void)
     if (install_atexit == TRUE)
         install_atexit = FALSE;
 
-    return (ret_value);
+    return ret_value;
 } /* end HDdont_atexit() */
 
 /*==========================================================================
@@ -2104,7 +2107,7 @@ HIstart(void)
     }
 
 done:
-    return (ret_value);
+    return ret_value;
 } /* end HIstart() */
 
 /*--------------------------------------------------------------------------
@@ -2139,7 +2142,7 @@ HPregister_term_func(hdf_termfunc_t term_func)
         HGOTO_ERROR(DFE_INTERNAL, FAIL);
 
 done:
-    return (ret_value);
+    return ret_value;
 } /* end HPregister_term_func() */
 
 /*--------------------------------------------------------------------------
@@ -2314,17 +2317,17 @@ HIunlock(filerec_t *file_rec)
     /* unlock the file record */
     file_rec->attach--;
 
-    return (SUCCEED);
+    return SUCCEED;
 }
 
 /* ------------------------- SPECIAL TAG ROUTINES ------------------------- */
 /*
    The HDF tag space is divided as follows based on the 2 highest bits:
-   00: NCSA reserved ordinary tags
-   01: NCSA reserved special tags
+   00: Library reserved ordinary tags
+   01: Library reserved special tags
    10, 11: User tags.
 
-   It is relatively cheap to operate with special tags within the NCSA
+   It is relatively cheap to operate with special tags within the library
    reserved tags range.  For users to specify special tags and their
    corresponding ordinary tag, the pair has to be added to the
    special_table.
@@ -2437,7 +2440,7 @@ done:
     returns SUCCEED (0).
  DESCRIPTION
     Copies values from #defines in hfile.h to provided buffers. This
-        information is statistically compilied into the HDF library, so
+        information is statistically compiled into the HDF library, so
         it is not necessary to have any files open to get this information.
 
 --------------------------------------------------------------------------*/
@@ -2451,7 +2454,7 @@ Hgetlibversion(uint32 *majorv, uint32 *minorv, uint32 *releasev, char *string)
     *releasev = LIBVER_RELEASE;
     HIstrncpy(string, LIBVER_STRING, LIBVSTR_LEN + 1);
 
-    return (SUCCEED);
+    return SUCCEED;
 } /* HDgetlibversion */
 
 /*--------------------------------------------------------------------------
@@ -2578,7 +2581,7 @@ HIget_filerec_node(const char *path)
         if ((ret_value = (filerec_t *)calloc(1, sizeof(filerec_t))) == NULL)
             HGOTO_ERROR(DFE_NOSPACE, NULL);
 
-        if ((ret_value->path = (char *)HDstrdup(path)) == NULL)
+        if ((ret_value->path = (char *)strdup(path)) == NULL)
             HGOTO_ERROR(DFE_NOSPACE, NULL);
 
         /* Initialize annotation stuff */
@@ -2679,7 +2682,7 @@ HPcompare_filerec_path(const void *obj, const void *key)
         if (BADFREC(frec))
             ret_value = FALSE;
         else {
-            if (!HDstrcmp(frec->path, fname))
+            if (!strcmp(frec->path, fname))
                 ret_value = TRUE;
             else
                 ret_value = FALSE;
@@ -2722,7 +2725,7 @@ HPcompare_accrec_tagref(const void *rec1, const void *rec2)
     } /* end if */
 
 done:
-    return (ret_value);
+    return ret_value;
 } /* HPcompare_accrec_tagref */
 
 /*--------------------------------------------------------------------------
@@ -2857,7 +2860,7 @@ HIupdate_version(int32 file_id)
         UINT32ENCODE(p, file_rec->version.minorv);
         UINT32ENCODE(p, file_rec->version.release);
         HIstrncpy((char *)p, file_rec->version.string, LIBVSTR_LEN);
-        i = (int)HDstrlen((char *)p);
+        i = (int)strlen((char *)p);
         memset(&p[i], 0, LIBVSTR_LEN - i);
     }
 
@@ -2905,7 +2908,7 @@ HIread_version(int32 file_id)
         file_rec->version.majorv  = 0;
         file_rec->version.minorv  = 0;
         file_rec->version.release = 0;
-        HDstrcpy(file_rec->version.string, "");
+        strcpy(file_rec->version.string, "");
         file_rec->version.modified = 0;
         HGOTO_ERROR(DFE_INTERNAL, FAIL);
     }
@@ -3514,64 +3517,64 @@ Hgetntinfo(const int32 numbertype, hdf_ntinfo_t *nt_info)
 
     /* Get byte order string */
     if ((DFNT_LITEND & numbertype) > 0) {
-        HDstrcpy(nt_info->byte_order, "littleEndian");
+        strcpy(nt_info->byte_order, "littleEndian");
     }
     else
-        HDstrcpy(nt_info->byte_order, "bigEndian");
+        strcpy(nt_info->byte_order, "bigEndian");
 
     /* Get type name string; must mask native and little-endian to make
        sure we get standard type */
     switch ((numbertype & ~DFNT_NATIVE) & ~DFNT_LITEND) {
         case DFNT_UCHAR8:
-            HDstrcpy(nt_info->type_name, "uchar8");
+            strcpy(nt_info->type_name, "uchar8");
             break;
         case DFNT_CHAR8:
-            HDstrcpy(nt_info->type_name, "char8");
+            strcpy(nt_info->type_name, "char8");
             break;
         case DFNT_FLOAT32:
-            HDstrcpy(nt_info->type_name, "float32");
+            strcpy(nt_info->type_name, "float32");
             break;
         case DFNT_FLOAT64:
-            HDstrcpy(nt_info->type_name, "float64");
+            strcpy(nt_info->type_name, "float64");
             break;
         case DFNT_FLOAT128:
-            HDstrcpy(nt_info->type_name, "float128");
+            strcpy(nt_info->type_name, "float128");
             break;
         case DFNT_INT8:
-            HDstrcpy(nt_info->type_name, "int8");
+            strcpy(nt_info->type_name, "int8");
             break;
         case DFNT_UINT8:
-            HDstrcpy(nt_info->type_name, "uint8");
+            strcpy(nt_info->type_name, "uint8");
             break;
         case DFNT_INT16:
-            HDstrcpy(nt_info->type_name, "int16");
+            strcpy(nt_info->type_name, "int16");
             break;
         case DFNT_UINT16:
-            HDstrcpy(nt_info->type_name, "uint16");
+            strcpy(nt_info->type_name, "uint16");
             break;
         case DFNT_INT32:
-            HDstrcpy(nt_info->type_name, "int32");
+            strcpy(nt_info->type_name, "int32");
             break;
         case DFNT_UINT32:
-            HDstrcpy(nt_info->type_name, "uint32");
+            strcpy(nt_info->type_name, "uint32");
             break;
         case DFNT_INT64:
-            HDstrcpy(nt_info->type_name, "int64");
+            strcpy(nt_info->type_name, "int64");
             break;
         case DFNT_UINT64:
-            HDstrcpy(nt_info->type_name, "uint64");
+            strcpy(nt_info->type_name, "uint64");
             break;
         case DFNT_INT128:
-            HDstrcpy(nt_info->type_name, "int128");
+            strcpy(nt_info->type_name, "int128");
             break;
         case DFNT_UINT128:
-            HDstrcpy(nt_info->type_name, "uint128");
+            strcpy(nt_info->type_name, "uint128");
             break;
         case DFNT_CHAR16:
-            HDstrcpy(nt_info->type_name, "char16");
+            strcpy(nt_info->type_name, "char16");
             break;
         case DFNT_UCHAR16:
-            HDstrcpy(nt_info->type_name, "uchar16");
+            strcpy(nt_info->type_name, "uchar16");
             break;
         default:
             return FAIL;

@@ -357,9 +357,9 @@ New features and changes
     - CMake option to use AEC (open source SZip) library instead of SZip
 
       The open source AEC library is a replacement library for SZip. In
-      order to use it for hdf5 the libaec CMake source was changed to add
+      order to use it for hdf4 the libaec CMake source was changed to add
       "-fPIC" and exclude test files. Autotools does not build the
-      compression libraries within hdf5 builds. New option USE_LIBAEC is
+      compression libraries within hdf4 builds. New option USE_LIBAEC is
       required to compensate for the different files produced by AEC build.
 
       (ADB - 2020/04/22, OESS-65)
@@ -5021,7 +5021,7 @@ New Features and Changes:
     * New API HCget_config_info added
     * The default chunk cache size was changed for 2D and higher
       chunks
-    * Pablo instumentation was removed
+    * Pablo instrumentation was removed
    
     Utilities
     ========= 
@@ -7681,7 +7681,6 @@ Contents
 
    H-Level Limits
    --------------
-
       MAX_FILE files open at a single time (hfile.h) 
       MAX_ACC access records open at a single time (hfile.h) 
       int16 total tags (fixed) 
@@ -7717,7 +7716,7 @@ Contents
       MAX_NC_NAME maximum length of a name of a dataset 
           (defined in netcdf.h included by mfhdf.h) 
 
-   Other Convensions / Issues
+   Other Conventions / Issues
    --------------------------
       Some utility programs (e.g. ncgen) expect dataset names to be 
       composed of only alphanumeric, '-' and '_' characters. 

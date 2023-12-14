@@ -168,34 +168,6 @@
  *      or native 16-bit integer values for IN16 input format or native 8-bit
  *      integer values for IN08 input format.
  *
- * Source Availability:
- *      This program is in the public domain, and was developed and made
- *      available by the National Center for Supercomputing Applications,
- *      University of Illinois, Urbana-Champaign (ftp.ncsa.uiuc.edu).
- *
- * History:
- *      Beta version:                                           17-May-89
- *              (by Mike Folk mfolk@ncsa.uiuc.edu)
- *      Revision to put in the mean option:                     15-Sep-89
- *              (by Glen Mortensen gam@inel.gov)
- *      Officially released:                                    01-Dec-89
- *              (by NCSA ftp.ncsa.uiuc.edu)
- *      Revision to fix some bugs:                              16-Mar-90
- *              (by Mike Folk mfolk@ncsa.uiuc.edu)
- *      Revision to support 3D and native fp input:             15-May-90
- *              (by Bob Weaver baw@inel.gov)
- *      Revision to fix bug in interp() :                       17-Oct-90
- *              (by Fred Walsteijn nwalstyn@fys.ruu.n)
- *      Revision to fix bug in interp() :                       23-Nov-90
- *              Now it clips values outside of max and min.
- *              (by Fred Walsteijn nwalstyn@fys.ruu.n)
- *      Revision to start to use HDF 3.2 (and 3.3) library:     22-Jun-93
- *              Still lots to do to support other number types.
- *              (by Chris Houck chouck@ncsa.uiuc.edu)
- *      Revision to incorporate 32-bit integer, 16-bit integer, 08-Jan-02
- *              8-bit integer data types and converting 64-bit
- *              input data to 64-bit output data.
- *              (by Pankaj Kamat pkamat@uiuc.edu)
  */
 
 #include "hdf.h"
@@ -346,7 +318,7 @@ struct Raster {
 #define OPT_r    2  /* convert to image */
 #define OPT_e    3  /* expand image via pixel replication */
 #define OPT_i    4  /* make interpolated image */
-#define NUMBR    5  /* resolution of enlarged image */
+#define OPT_num  5  /* resolution of enlarged image */
 #define OPT_p    6  /* palette filename */
 #define OPT_f    7  /* convert to float (default) */
 #define OPT_h    8  /* request for explanation */
@@ -363,7 +335,7 @@ struct Raster {
 static int state_table[19][12] = {
 
     /* token ordering:
-       FILENAME     OPT_o   OPT_r   OPT_e   OPT_i   NUMBR   OPT_p   OPT_f
+       FILENAME     OPT_o   OPT_r   OPT_e   OPT_i   OPT_num   OPT_p   OPT_f
        OPT_h        OPT_m   OPT_z */
 
     /* state 0: start */
@@ -530,14 +502,14 @@ main(int argc, char *argv[])
 
         switch (state) {
             case 1: /* counting input files */
-                (void)HDstrcpy(opt.infiles[opt.fcount].filename, argv[i]);
+                (void)strcpy(opt.infiles[opt.fcount].filename, argv[i]);
                 opt.infiles[opt.fcount].outtype = NO_NE;
                 opt.fcount++;
                 break;
             case 2: /* -o found; look for outfile */
                 break;
             case 3: /* get outfile name */
-                (void)HDstrcpy(opt.outfile, argv[i]);
+                (void)strcpy(opt.outfile, argv[i]);
                 outfile_named = TRUE;
                 break;
             case 4: /* -r found */
@@ -562,7 +534,7 @@ main(int argc, char *argv[])
                 opt.pal = TRUE;
                 break;
             case 11: /* get pal filename */
-                (void)HDstrcpy(opt.palfile, argv[i]);
+                (void)strcpy(opt.palfile, argv[i]);
                 break;
             case 12: /* -f found (after a -r) */
             case 13: /* -f found (no -r yet) */
@@ -1652,38 +1624,38 @@ gtoken(char *s)
      */
     if (s[0] == '-') { /* option name (or negative number) */
         token = ERR;
-        len   = HDstrlen(&s[1]);
+        len   = strlen(&s[1]);
         switch (s[1]) {
             case 'o':
-                if (!HDstrncmp("outfile", &s[1], len))
+                if (!strncmp("outfile", &s[1], len))
                     token = OPT_o;
                 break;
             case 'r':
-                if (!HDstrncmp("raster", &s[1], len))
+                if (!strncmp("raster", &s[1], len))
                     token = OPT_r;
                 break;
             case 'e':
-                if (!HDstrncmp("expand", &s[1], len))
+                if (!strncmp("expand", &s[1], len))
                     token = OPT_e;
                 break;
             case 'i':
-                if (!HDstrncmp("interp", &s[1], len))
+                if (!strncmp("interp", &s[1], len))
                     token = OPT_i;
                 break;
             case 'p':
-                if (!HDstrncmp("palfile", &s[1], len))
+                if (!strncmp("palfile", &s[1], len))
                     token = OPT_p;
                 break;
             case 'f':
-                if (!HDstrncmp("float", &s[1], len))
+                if (!strncmp("float", &s[1], len))
                     token = OPT_f;
                 break;
             case 'h':
-                if (!HDstrncmp("help", &s[1], len))
+                if (!strncmp("help", &s[1], len))
                     token = OPT_h;
                 break;
             case 'm':
-                if (!HDstrncmp("mean", &s[1], len))
+                if (!strncmp("mean", &s[1], len))
                     token = OPT_m;
                 break;
             case 'n':
@@ -1694,13 +1666,13 @@ gtoken(char *s)
                 break;
             default:
                 if (isnum(s)) /* negative number? */
-                    token = NUMBR;
+                    token = OPT_num;
         }
         if (token == ERR)
             (void)fprintf(stderr, err1, s);
     }
     else if (isnum(s)) /* positive number */
-        token = NUMBR;
+        token = OPT_num;
     else /* filename */
         token = FILENAME;
 

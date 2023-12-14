@@ -19,7 +19,7 @@ LOCAL ROUTINES
 EXPORTED ROUTINES
   HDmemfill    -- copy a chunk of memory repetitively into another chunk
   HIstrncpy    -- string copy with termination
-  HDstrdup     -- in-library replacement for non-ANSI strdup()
+  strdup     -- in-library replacement for non-ANSI strdup()
 */
 
 /*--------------------------------------------------------------------------
@@ -80,7 +80,7 @@ HDmemfill(void *dest, const void *src, uint32 item_size, uint32 num_items)
         if (items_left > 0)  /* if there are any items left to copy */
             memcpy(curr_dest, dest, items_left * item_size);
     } /* end if */
-    return (dest);
+    return dest;
 } /* end HDmemfill() */
 
 /*--------------------------------------------------------------------------
@@ -112,46 +112,9 @@ HIstrncpy(char *dest, const char *source, intn len)
 
     destp = dest;
     if (len == 0)
-        return (destp);
+        return destp;
     for (; (len > 1) && (*source != '\0'); len--)
         *dest++ = *source++;
     *dest = '\0'; /* Force the last byte be '\0'   */
-    return (destp);
+    return destp;
 } /* end HIstrncpy() */
-/* *INDENT-OFF* */
-/* GNU indent 1.9.1 urps on this section, so turn off indenting for now -QAK */
-
-/*--------------------------------------------------------------------------
- NAME
-    HDstrdup -- in-library replacement for non-ANSI strdup()
- USAGE
-    char *HDstrdup(s)
-        const char *s;          IN: pointer to the string to duplicate
- RETURNS
-    Pointer to the duplicated string, or NULL on failure.
- DESCRIPTION
-    Duplicates a string (i.e. allocates space and copies it over).
- GLOBAL VARIABLES
- COMMENTS, BUGS, ASSUMPTIONS
-    Acts like strdup().
- EXAMPLES
- REVISION LOG
---------------------------------------------------------------------------*/
-char *
-HDstrdup(const char *s)
-{
-    char *ret;
-
-    /* Make sure original string is not NULL */
-    if (s == NULL)
-        return (NULL);
-
-    /* Allocate space */
-    ret = (char *)malloc((uint32)HDstrlen(s) + 1);
-    if (ret == NULL)
-        return (NULL);
-
-    /* Copy the original string and return it */
-    HDstrcpy(ret, s);
-    return (ret);
-} /* end HDstrdup() */

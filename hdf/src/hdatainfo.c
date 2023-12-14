@@ -44,18 +44,12 @@ LOW-LEVEL ROUTINES
 
 **********************************************************************/
 
-#ifndef MFGR_MASTER
-#define MFGR_MASTER /* for GRgetdatainfo and GRgetattdatainfo */
-#endif              /* mfgr.h had been included in hdf.h */
-
-#ifndef MFAN_MASTER
-#define MFAN_MASTER /* for ANgetdatainfo */
-#endif              /* mfan.h is included here */
-
 #include "hdf.h"
 #include "hlimits.h"
 #include "vgint.h"
+#include "mfani.h"
 #include "mfan.h"
+#include "mfgri.h"
 
 #ifdef H4_HAVE_LIBSZ /* we have the szip library */
 #include "szlib.h"
@@ -929,7 +923,7 @@ GRgetpalinfo(int32 gr_id, uintn pal_count, hdf_ddinfo_t *palinfo_array)
             HGOTO_ERROR(DFE_INTERNAL, FAIL);
         }
         else
-            return (n_IP8s + n_LUTs);
+            return n_IP8s + n_LUTs;
     }
 
     /* Application requests data info of palettes.  Start checking tags in
