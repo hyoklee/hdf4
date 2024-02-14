@@ -51,7 +51,7 @@ jobs:
           export LD_RUN_PATH=/home/runner/work/hdf4-1/hdf4-1/aocc-compiler-4.1.0/lib:/usr/local/lib
           export PATH=/usr/local/bin:$PATH
           ./autogen.sh
-          ./configure --prefix=/tmp --enable-fortran --enable-shared CC=clang FC=flang LDFLAGS="-L/home/runner/work/hdf4-1/hdf4-1/aocc-compiler-4.1.0/lib"
+          ./configure --prefix=/tmp --enable-fortran --enable-shared CC=clang F77flang LDFLAGS="-L/home/runner/work/hdf4-1/hdf4-1/aocc-compiler-4.1.0/lib"
           make -j
           make check -j
           make install
