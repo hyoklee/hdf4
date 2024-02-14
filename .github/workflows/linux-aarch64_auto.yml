@@ -1,4 +1,4 @@
-name: amd64 arm64-gcc Autotools
+name: arm64-gcc auto
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ jobs:
         sudo apt-get install -y -q gcc-aarch64-linux-gnu
         sudo apt-get install -y -q binfmt-support qemu qemu-user-static
     - name: Get Sources
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
     - name: Build and Test
       run: |
         echo $PWD
