@@ -1,4 +1,4 @@
-name: arm64-gcc auto
+name: lin auto gcc_arm64
 
 on: [ push, pull_request ]
 
