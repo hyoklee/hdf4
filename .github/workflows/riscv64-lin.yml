@@ -1,4 +1,4 @@
-name: arm64 lin
+name: riscv64 lin
 
 on: [push, pull_request]
 
@@ -6,14 +6,14 @@ jobs:
   aarch64_job:
     # The host should always be Linux
     runs-on: ubuntu-latest
-    name: Build on ubuntu-latest aarch64
+    name: Build on ubuntu-latest riscv64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.1.1
       - uses: uraimo/run-on-arch-action@v2
         name: Run commands
         id: runcmd
         with:
-          arch: aarch64
+          arch: riscv64
           distro: ubuntu_latest
 
           # Not required, but speeds up builds by storing container images in
@@ -21,15 +21,15 @@ jobs:
           githubToken: ${{ github.token }}
           install: |
             apt-get update -q -y
-            apt-get install -q -y gfortran g++
-            apt-get install -q -y git cmake libjpeg-dev zlib1g zlib1g-dev
+            apt-get install -q -y git
+            apt-get install -q -y cmake
           run: |
             echo ::set-output name=uname::$(uname -a)
             git clone https://github.com/HDFGroup/hdf4
             cd hdf4
             mkdir build
             cd build
-            cmake -DHDF4_BUILD_FORTRAN:BOOL=OFF ..
+            cmake ..
             make
             make test
 
