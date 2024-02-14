@@ -28,7 +28,7 @@ macro (SET_HDF_OUTPUT_DIRS package_prefix)
     endif ()
   else ()
     # if we are externally configured, but the project uses old cmake scripts
-    # this may not be set and utilities like H5detect will fail
+    # this may not be set and some utilities may fail
     if (NOT CMAKE_RUNTIME_OUTPUT_DIRECTORY)
       set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
     endif ()
@@ -36,12 +36,12 @@ macro (SET_HDF_OUTPUT_DIRS package_prefix)
 
   if (NOT ${package_prefix}_EXTERNALLY_CONFIGURED AND CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     if (CMAKE_HOST_UNIX)
-      set (CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/HDF_Group/${HDF5_PACKAGE_NAME}/${HDF5_PACKAGE_VERSION}"
+      set (CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}/HDF_Group/${HDF4_PACKAGE_NAME}/${HDF4_PACKAGE_VERSION}"
         CACHE PATH "Install path prefix, prepended onto install directories." FORCE)
     else ()
       GetDefaultWindowsPrefixBase(CMAKE_GENERIC_PROGRAM_FILES)
       set (CMAKE_INSTALL_PREFIX
-        "${CMAKE_GENERIC_PROGRAM_FILES}/HDF_Group/${HDF5_PACKAGE_NAME}/${HDF5_PACKAGE_VERSION}"
+        "${CMAKE_GENERIC_PROGRAM_FILES}/HDF_Group/${HDF4_PACKAGE_NAME}/${HDF4_PACKAGE_VERSION}"
         CACHE PATH "Install path prefix, prepended onto install directories." FORCE)
       set (CMAKE_GENERIC_PROGRAM_FILES)
     endif ()
@@ -356,7 +356,7 @@ macro (HDFTEST_COPY_FILE src dest target)
 endmacro ()
 
 macro (HDF_DIR_PATHS package_prefix)
-  option (HDF4_USE_GNU_DIRS "TRUE to use GNU Coding Standard install directory variables, FALSE to use historical settings" FALSE)
+  option (HDF4_USE_GNU_DIRS "ON to use GNU Coding Standard install directory variables, OFF to use historical settings" FALSE)
   if (HDF4_USE_GNU_DIRS)
     include(GNUInstallDirs)
     if (NOT ${package_prefix}_INSTALL_BIN_DIR)
@@ -387,7 +387,7 @@ macro (HDF_DIR_PATHS package_prefix)
   endif ()
 
   if (APPLE)
-    option (${package_prefix}_BUILD_FRAMEWORKS "TRUE to build as frameworks libraries, FALSE to build according to BUILD_SHARED_LIBS" FALSE)
+    option (${package_prefix}_BUILD_FRAMEWORKS "ON to build as frameworks libraries, OFF to build according to BUILD_SHARED_LIBS" FALSE)
   endif ()
 
   if (NOT ${package_prefix}_INSTALL_BIN_DIR)
@@ -436,10 +436,10 @@ macro (HDF_DIR_PATHS package_prefix)
   message(STATUS "Final: ${${package_prefix}_INSTALL_DOC_DIR}")
 
   # Always use full RPATH, i.e. don't skip the full RPATH for the build tree
-  set (CMAKE_SKIP_BUILD_RPATH  FALSE)
+  set (CMAKE_SKIP_BUILD_RPATH  OFF)
   # when building, don't use the install RPATH already
   # (but later on when installing)
-  set (CMAKE_INSTALL_RPATH_USE_LINK_PATH  FALSE)
+  set (CMAKE_INSTALL_RPATH_USE_LINK_PATH  OFF)
   # add the automatically determined parts of the RPATH
   # which point to directories outside the build tree to the install RPATH
   set (CMAKE_BUILD_WITH_INSTALL_RPATH ON)

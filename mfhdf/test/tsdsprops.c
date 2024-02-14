@@ -28,9 +28,10 @@
  *		(bugzilla 150)
  ****************************************************************************/
 
-#include "mfhdf.h"
+#include <stdlib.h>
+#include <string.h>
 
-#ifdef HDF
+#include "mfhdf.h"
 
 #include "hdftest.h"
 
@@ -763,5 +764,3 @@ test_SDSprops()
         PASSED();
     return num_errs;
 }
-
-#endif /* HDF */

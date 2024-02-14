@@ -152,16 +152,9 @@ LOCAL ROUTINES
 intn GRIil_convert(const void * inbuf,gr_interlace_t inil,void * outbuf,
         gr_interlace_t outil,int32 dims[2],int32 ncomp,int32 nt);
     - Copy a pixel buffer from one interlace to another.
-
-AUTHOR
-   Quincey Koziol
-
-MODIFICATION HISTORY
-   10/20/95  - Starting writing specs & coding prototype
-    3/ 8/96  - Modifications to remove compiled limits on the # of files
  */
 
-#include "hdf.h"
+#include "hdfi.h"
 #include "hlimits.h"
 #include "mfgri.h"
 
@@ -2002,7 +1995,7 @@ GRend(int32 grid)
             void     **t2;
             ri_info_t *img_ptr; /* ptr to the image */
 
-            if (NULL == (t2 = (void **)tbbtfirst((TBBT_NODE *)*(gr_ptr->grtree)))) {
+            if (NULL == (t2 = (void **)tbbtfirst(gr_ptr->grtree->root))) {
                 HGOTO_ERROR(DFE_NOTINTABLE, FAIL);
             } /* end if */
             else
@@ -2036,7 +2029,7 @@ GRend(int32 grid)
                     void     **t3;
                     at_info_t *attr_ptr; /* ptr to the attribute */
 
-                    if (NULL == (t3 = (void **)tbbtfirst((TBBT_NODE *)*(img_ptr->lattree)))) {
+                    if (NULL == (t3 = (void **)tbbtfirst(img_ptr->lattree->root))) {
                         HGOTO_ERROR(DFE_NOTINTABLE, FAIL);
                     } /* end if */
                     else
@@ -2089,7 +2082,7 @@ GRend(int32 grid)
             void     **t2;
             at_info_t *attr_ptr; /* ptr to the attribute */
 
-            if (NULL == (t2 = (void **)tbbtfirst((TBBT_NODE *)*(gr_ptr->gattree)))) {
+            if (NULL == (t2 = (void **)tbbtfirst(gr_ptr->gattree->root))) {
                 HGOTO_ERROR(DFE_NOTINTABLE, FAIL);
             } /* end if */
             else
@@ -2365,7 +2358,7 @@ GRnametoindex(int32 grid, const char *name)
     if (NULL == (gr_ptr = (gr_info_t *)HAatom_object(grid)))
         HGOTO_ERROR(DFE_GRNOTFOUND, FAIL);
 
-    if ((t = (void **)tbbtfirst((TBBT_NODE *)*(gr_ptr->grtree))) == NULL)
+    if ((t = (void **)tbbtfirst(gr_ptr->grtree->root)) == NULL)
         HGOTO_ERROR(DFE_RINOTFOUND, FAIL);
     do {
         ri_ptr = (ri_info_t *)*t;
@@ -3359,7 +3352,7 @@ GRreftoindex(int32 grid, uint16 ref)
     if (NULL == (gr_ptr = (gr_info_t *)HAatom_object(grid)))
         HGOTO_ERROR(DFE_GRNOTFOUND, FAIL);
 
-    if ((t = (void **)tbbtfirst((TBBT_NODE *)*(gr_ptr->grtree))) == NULL)
+    if ((t = (void **)tbbtfirst(gr_ptr->grtree->root)) == NULL)
         HGOTO_ERROR(DFE_RINOTFOUND, FAIL);
     do {
         ri_ptr = (ri_info_t *)*t;
@@ -4083,7 +4076,7 @@ done:
 
 /*--------------------------------------------------------------------------
  NAME
-    GRgetcompress
+    GRgetcompress - Deprecated in favor of GRgetcompinfo
 
  PURPOSE
     Get the compression information of a raster image's data.
@@ -4109,53 +4102,15 @@ done:
     mapped to a quantization table.  Thus, only the correct compression
     type will be returned; cinfo will only contain 0s.
 
- EXAMPLES
- REVISION LOG
-    July 2001: Added to fix bug #307 -BMR
-    Apr 2005: Replaced by GRgetcompinfo due to deficiency in handling some
-                special elements. -BMR
 --------------------------------------------------------------------------*/
 intn
 GRgetcompress(int32 riid, comp_coder_t *comp_type, comp_info *cinfo)
 {
-    ri_info_t *ri_ptr; /* ptr to the image to work with */
-    int32      file_id;
-    uint16     scheme; /* compression scheme used for JPEG images */
-    intn       ret_value = SUCCEED;
+    intn ret_value = SUCCEED;
 
-    /* clear error stack and check validity of args */
-    HEclear();
-
-    /* check the validity of the RI ID */
-    if (HAatom_group(riid) != RIIDGROUP)
-        HGOTO_ERROR(DFE_ARGS, FAIL);
-
-    /* and check the output arguments */
-    if (comp_type == NULL || cinfo == NULL)
-        HGOTO_ERROR(DFE_ARGS, FAIL);
-
-    /* locate RI's object in hash table */
-    if (NULL == (ri_ptr = (ri_info_t *)HAatom_object(riid)))
-        HGOTO_ERROR(DFE_BADPTR, FAIL);
-
-    file_id = ri_ptr->gr_ptr->hdf_file_id; /* temporary use */
-
-    /* If the compression scheme used was JPEG, return the compression type
-       and 0 for the 'quality' and 'force_baseline' parameters, because
-       these parameters are currently not possible to be retrieved. */
-    scheme = ri_ptr->img_dim.comp_tag;
-    if (scheme == DFTAG_JPEG5 || scheme == DFTAG_GREYJPEG5 || scheme == DFTAG_JPEG ||
-        scheme == DFTAG_GREYJPEG) {
-        *comp_type                 = COMP_CODE_JPEG;
-        cinfo->jpeg.quality        = 0;
-        cinfo->jpeg.force_baseline = 0;
-    }
-    else {
-        /* use lower-level routine to get the compression information */
-        ret_value = HCPgetcompress(file_id, ri_ptr->img_tag, ri_ptr->img_ref, comp_type, cinfo);
-        if (ret_value == FAIL)
-            HGOTO_ERROR(DFE_INTERNAL, FAIL);
-    }
+    ret_value = GRgetcompinfo(riid, comp_type, cinfo);
+    if (ret_value == FAIL)
+        HGOTO_ERROR(DFE_INTERNAL, FAIL);
 
 done:
     return ret_value;
@@ -4293,15 +4248,6 @@ done:
     mapped to a quantization table.  Thus, only the correct compression
     type will be returned; cinfo will only contain 0s.
 
- EXAMPLES
- REVISION LOG
-    July 2001: Added to fix bug #307 - BMR (from GRgetcompress)
-    Apr 2005:  This function was actually created at this time, but it is
-               almost a duplicate of GRgetcompress, which is intended to be
-               removed in the future, due to its incorrect behavior.  The
-               only difference is the call to the low-level routine,
-               HCPgetcompinfo, instead of HCPgetcompress.
-
 --------------------------------------------------------------------------*/
 intn
 GRgetcompinfo(int32 riid, comp_coder_t *comp_type, comp_info *cinfo)
@@ -4348,6 +4294,13 @@ GRgetcompinfo(int32 riid, comp_coder_t *comp_type, comp_info *cinfo)
         ret_value = HCPgetcompinfo(file_id, ri_ptr->img_tag, ri_ptr->img_ref, comp_type, cinfo);
         if (ret_value == FAIL)
             HGOTO_ERROR(DFE_INTERNAL, FAIL);
+
+        /* remove the szip special bit if necessary */
+        if (*comp_type == COMP_CODE_SZIP) {
+            ret_value = HCPrm_szip_special_bit(cinfo);
+            if (ret_value == FAIL)
+                HGOTO_ERROR(DFE_INTERNAL, FAIL);
+        }
     }
 
 done:
@@ -4439,7 +4392,7 @@ GRsetattr(int32 id, const char *name, int32 attr_nt, int32 count, const void *da
         HGOTO_ERROR(DFE_ARGS, FAIL);
 
     /* Search for an attribute with the same name */
-    if ((t = (void **)tbbtfirst((TBBT_NODE *)*search_tree)) != NULL) {
+    if ((t = (void **)tbbtfirst(search_tree->root)) != NULL) {
         do {
             at_ptr = (at_info_t *)*t;
             if (at_ptr != NULL && strcmp(at_ptr->name, name) == 0) /* ie. the name matches */
@@ -4802,7 +4755,7 @@ GRfindattr(int32 id, const char *name)
     else /* shouldn't get here, but what the heck... */
         HGOTO_ERROR(DFE_ARGS, FAIL);
 
-    if ((t = (void **)tbbtfirst((TBBT_NODE *)*search_tree)) == NULL)
+    if ((t = (void **)tbbtfirst(search_tree->root)) == NULL)
         HGOTO_ERROR(DFE_RINOTFOUND, FAIL);
     do {
         at_ptr = (at_info_t *)*t;
@@ -4924,7 +4877,7 @@ GRIgetaid(ri_info_t *ri_ptr, intn acc_perm)
 
                 pixel_size = (uintn)(ri_ptr->img_dim.ncomps * DFKNTsize(ri_ptr->img_dim.nt));
 
-                /* BMR: HRPconvert made access_rec->special = SPECIAL_COMPRAS */
+                /* Wraps an existing compressed raster image with the special element*/
                 if ((ri_ptr->img_aid = HRPconvert(hdf_file_id, ri_ptr->img_tag, ri_ptr->img_ref,
                                                   ri_ptr->img_dim.xdim, ri_ptr->img_dim.ydim,
                                                   ri_ptr->img_dim.comp_tag, &(ri_ptr->cinfo), pixel_size)) ==
@@ -4987,9 +4940,6 @@ GRPshutdown(void)
 
 /*====================== Chunking Routines ================================*/
 
-/* Debugging */
-/* #define CHK_DEBUG */
-
 /* NOTE: the definition of the union HDF_CHUNK_DEF can be found in hproto.h */
 
 /******************************************************************************
@@ -5018,7 +4968,7 @@ GRPshutdown(void)
 
       } HDF_CHUNK_DEF
 
-      The variable agruement 'flags' is a bit-or'd value which can currently be
+      The variable argument 'flags' is a bit-or'd value which can currently be
       'HDF_CHUNK' or 'HDF_CHUNK | HDF_COMP'.
 
       The simplest is the 'chunk_lengths' array specifying chunk
@@ -5123,9 +5073,6 @@ GRsetchunk(int32         riid,      /* IN: raster access id */
     gr_info_t     *gr_ptr;              /* ptr to the file GR information for this image */
     intn           ret_value = SUCCEED; /* return value */
 
-#ifdef CHK_DEBUG
-    fprintf(stderr, "GRsetchunk: called  \n");
-#endif
     /* clear error stack and check validity of args */
     HEclear();
 
@@ -5153,10 +5100,6 @@ GRsetchunk(int32         riid,      /* IN: raster access id */
         ri_ptr->img_tag = DFTAG_RI;
         ri_ptr->img_ref = Htagnewref(hdf_file_id, ri_ptr->img_tag);
     } /* end if */
-
-#ifdef CHK_DEBUG
-    fprintf(stderr, "GRsetchunk: ri_ptr->img_aid=%d  \n", ri_ptr->img_aid);
-#endif
 
     /* Decide type of definition passed in  */
     switch (flags) {
@@ -5239,10 +5182,7 @@ GRsetchunk(int32         riid,      /* IN: raster access id */
             ret_value = FAIL;
             goto done;
         }
-#ifdef CHK_DEBUG
-        fprintf(stderr, "GRsetchunk: cdims[%d]=%d \n", i, cdims[i]);
-        fflush(stderr);
-#endif
+
         /* Data distribution along dimensions
          *  Check dimension length against chunk length */
         if (i == 0) /* X */
@@ -5273,12 +5213,6 @@ GRsetchunk(int32         riid,      /* IN: raster access id */
        number of components times the number type */
     chunk[0].nt_size = ri_ptr->img_dim.ncomps * DFKNTsize(ri_ptr->img_dim.nt);
 
-#ifdef CHK_DEBUG
-    fprintf(stderr, "GRsetchunk: datatype size =%d\n",
-            ri_ptr->img_dim.ncomps * DFKNTsize(ri_ptr->img_dim.nt));
-    fflush(stderr);
-#endif
-
     /* allocate space for fill pixel */
     if ((fill_pixel = malloc(pixel_disk_size)) == NULL)
         HGOTO_ERROR(DFE_NOSPACE, FAIL);
@@ -5305,11 +5239,6 @@ GRsetchunk(int32         riid,      /* IN: raster access id */
             memset(fill_pixel, 0, pixel_disk_size);
     } /* end else */
 
-#ifdef CHK_DEBUG
-    fprintf(stderr, "GRsetchunk: get ready to create\n");
-    fprintf(stderr, "GRsetchunk: img_tag=%d, img_ref=%d\n", ri_ptr->img_tag, ri_ptr->img_ref);
-#endif
-
     /* check to see already special.
        Error if already special since doubly special elements are
        not yet handled. HMCcreate should catch this....*/
@@ -5322,10 +5251,6 @@ GRsetchunk(int32         riid,      /* IN: raster access id */
                           (void *)fill_pixel,      /* fill value */
                           (HCHUNK_DEF *)chunk /* chunk definition */);
 
-#ifdef CHK_DEBUG
-    fprintf(stderr, "HMCcreate: ret_value =%d \n", ret_value);
-#endif
-
     /* check return */
     if (ret_value != FAIL) { /* close old aid and set new one
                               ..hmm......this is for the doubly special hack */
@@ -5337,10 +5262,6 @@ GRsetchunk(int32         riid,      /* IN: raster access id */
         ri_ptr->img_aid = ret_value; /* set new access id */
         ret_value       = SUCCEED;   /* re-set to successful */
     }                                /* end if */
-
-#ifdef CHK_DEBUG
-    fprintf(stderr, "GRsetchunk: ri_ptr->img_aid =%d \n", ri_ptr->img_aid);
-#endif
 
 done:
     /* free fill value */
@@ -5413,10 +5334,6 @@ GRgetchunkinfo(int32          riid,      /* IN: sds access id */
     }
     else if (ri_ptr->img_aid == FAIL)
         HGOTO_ERROR(DFE_INTERNAL, FAIL);
-
-#ifdef CHK_DEBUG
-    fprintf(stderr, "%s: ri_ptr->img_aid =%d \n", __func__, ri_ptr->img_aid);
-#endif
 
     /* inquire about element */
     ret_value = Hinquire(ri_ptr->img_aid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &special);
@@ -5538,9 +5455,6 @@ GRwritechunk(int32       riid,   /* IN: access aid to GR */
     else if (ri_ptr->img_aid == FAIL)
         HGOTO_ERROR(DFE_INTERNAL, FAIL);
 
-#ifdef CHK_DEBUG
-    fprintf(stderr, "%s: ri_ptr->img_aid =%d \n", __func__, ri_ptr->img_aid);
-#endif
     comp_type = COMP_CODE_NONE;
     scheme    = ri_ptr->img_dim.comp_tag;
     if (scheme == DFTAG_JPEG5 || scheme == DFTAG_GREYJPEG5 || scheme == DFTAG_JPEG ||
@@ -5647,7 +5561,7 @@ GRwritechunk(int32       riid,   /* IN: access aid to GR */
     } /* end if Hinquire */
 
 done:
-    /* dont forget to free up info is special info block
+    /* don't forget to free up info is special info block
        This space was allocated by the library */
     free(info_block.cdims);
 
@@ -5732,10 +5646,6 @@ GRreadchunk(int32  riid,   /* IN: access aid to GR */
     }
     else if (ri_ptr->img_aid == FAIL)
         HGOTO_ERROR(DFE_INTERNAL, FAIL);
-
-#ifdef CHK_DEBUG
-    fprintf(stderr, "%s: ri_ptr->img_aid =%d \n", __func__, ri_ptr->img_aid);
-#endif
 
     comp_type = COMP_CODE_NONE;
     scheme    = ri_ptr->img_dim.comp_tag;
@@ -5844,7 +5754,7 @@ GRreadchunk(int32  riid,   /* IN: access aid to GR */
     } /* end if Hinquire */
 
 done:
-    /* dont forget to free up info is special info block
+    /* don't forget to free up info is special info block
        This space was allocated by the library */
     free(info_block.cdims);
 
@@ -5943,10 +5853,6 @@ GRsetchunkcache(int32 riid,     /* IN: access aid to mess with */
     }
     else if (ri_ptr->img_aid == FAIL)
         HGOTO_ERROR(DFE_INTERNAL, FAIL);
-
-#ifdef CHK_DEBUG
-    fprintf(stderr, "%s: ri_ptr->img_aid =%d \n", __func__, ri_ptr->img_aid);
-#endif
 
     /* inquire about element */
     ret_value = Hinquire(ri_ptr->img_aid, NULL, NULL, NULL, NULL, NULL, NULL, NULL, &special);

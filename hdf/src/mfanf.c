@@ -13,7 +13,6 @@
 
 /*-----------------------------------------------------------------------------
  * File:     mfanf.c
- * Author:   GeorgeV.
  * Purpose:  C-stubs for multi-file Fortran annotation routines
  * Invokes:  C-Routines in "mfan.c"
  * Contents: SEE annotation source/header files "mfan.c" and "mfan.h"
@@ -48,7 +47,7 @@
  *    aftagatype  - annotation TAG to corresponding annotation type
  *---------------------------------------------------------------------------*/
 
-#include "hdf.h"
+#include "hdfi.h"
 #include "hproto_fortran.h"
 
 /*-----------------------------------------------------------------------------
@@ -58,13 +57,6 @@
   interface. They call the corresponding C-functions in "mfan.c"
 
   The basic routines called by fortran will be of the form afxxxx
-
-  If only a C stub is needed it will be named nafxxxx have the FNAME()
-  function applied to it.
-
-  If a Fortran stub is also required the fortran stub will be called
-  afxxxx(mfanff.f) and the one in here will be nacxxx and again be FNAME()ed
-
 -----------------------------------------------------------------------------*/
 
 /*-----------------------------------------------------------------------------
@@ -75,7 +67,7 @@
  * Users:
  * Invokes: ANstart()
  *---------------------------------------------------------------------------*/
-FRETVAL(intf)
+intf
 nafstart(intf *file_id)
 {
     intf ret;
@@ -97,7 +89,7 @@ nafstart(intf *file_id)
  * Users:   Fortran Users
  * Invokes: ANfileinfo()
  *---------------------------------------------------------------------------*/
-FRETVAL(intf)
+intf
 naffileinfo(intf *an_id, intf *num_flabel, intf *num_fdesc, intf *num_olabel, intf *num_odesc)
 {
     intf  ret;
@@ -122,7 +114,7 @@ naffileinfo(intf *an_id, intf *num_flabel, intf *num_fdesc, intf *num_olabel, in
  * Users:   Fortran Users
  * Invokes: ANend()
  *---------------------------------------------------------------------------*/
-FRETVAL(intf)
+intf
 nafend(intf *an_id)
 {
     return (intf)ANend((int32)*an_id);
@@ -139,7 +131,7 @@ nafend(intf *an_id)
  * Users:   Fortran Users
  * Invokes: ANcreate()
  *---------------------------------------------------------------------------*/
-FRETVAL(intf)
+intf
 nafcreate(intf *an_id, intf *etag, intf *eref, intf *atype)
 {
     return (intf)ANcreate((int32)*an_id, (uint16)*etag, (uint16)*eref, (ann_type)*atype);
@@ -154,7 +146,7 @@ nafcreate(intf *an_id, intf *etag, intf *eref, intf *atype)
  * Users:   Fortran Users
  * Invokes: ANcreatf()
  *---------------------------------------------------------------------------*/
-FRETVAL(intf)
+intf
 naffcreate(intf *an_id, intf *atype)
 {
     return (intf)ANcreatef((int32)*an_id, (ann_type)*atype);
@@ -175,7 +167,7 @@ naffcreate(intf *an_id, intf *atype)
  * Users:   Fortran Users
  * Invokes: ANselect()
  *---------------------------------------------------------------------------*/
-FRETVAL(intf)
+intf
 nafselect(intf *an_id, intf *index, intf *atype)
 {
     return (intf)ANselect((int32)*an_id, (int32)*index, (ann_type)*atype);
@@ -192,7 +184,7 @@ nafselect(intf *an_id, intf *index, intf *atype)
  * Users:   Fortran Users
  * Invokes: ANnumann()
  *---------------------------------------------------------------------------*/
-FRETVAL(intf)
+intf
 nafnumann(intf *an_id, intf *atype, intf *etag, intf *eref)
 {
     return (intf)ANnumann((int32)*an_id, (ann_type)*atype, (uint16)*etag, (uint16)*eref);
@@ -210,7 +202,7 @@ nafnumann(intf *an_id, intf *atype, intf *etag, intf *eref)
  * Users:   Fortran Users
  * Invokes: ANnumann(), ANannlist()
  *---------------------------------------------------------------------------*/
-FRETVAL(intf)
+intf
 nafannlist(intf *an_id, intf *atype, intf *etag, intf *eref, intf alist[])
 {
     intf   ret;
@@ -250,7 +242,7 @@ nafannlist(intf *an_id, intf *atype, intf *etag, intf *eref, intf alist[])
  * Users:   Fortran Users
  * Invokes: ANannlen()
  *---------------------------------------------------------------------------*/
-FRETVAL(intf)
+intf
 nafannlen(intf *an_id)
 {
     return (intf)ANannlen((int32)*an_id);
@@ -266,7 +258,7 @@ nafannlen(intf *an_id)
  * Users:   Fortran Users
  * Invokes: ANwriteann()
  *---------------------------------------------------------------------------*/
-FRETVAL(intf)
+intf
 nafwriteann(intf *ann_id, _fcd ann, intf *annlen)
 {
     char *iann = NULL;
@@ -294,7 +286,7 @@ nafwriteann(intf *ann_id, _fcd ann, intf *annlen)
  * Users:   Fortran Users
  * Invokes: ANreadann()
  *---------------------------------------------------------------------------*/
-FRETVAL(intf)
+intf
 nafreadann(intf *ann_id, _fcd ann, intf *maxlen)
 {
     char *iann = NULL;
@@ -325,7 +317,7 @@ nafreadann(intf *ann_id, _fcd ann, intf *maxlen)
  * Users:   Fortran Users
  * Invokes: ANendaccess()
  *---------------------------------------------------------------------------*/
-FRETVAL(intf)
+intf
 nafendaccess(intf *ann_id)
 {
     return (intf)ANendaccess((int32)*ann_id);
@@ -339,7 +331,7 @@ nafendaccess(intf *ann_id)
  * Users:   Fortran Users
  * Invokes: ANget_tagref()
  *---------------------------------------------------------------------------*/
-FRETVAL(intf)
+intf
 nafgettagref(intf *an_id, intf *index, intf *type, intf *tag, intf *ref)
 {
     intf   ret;
@@ -361,7 +353,7 @@ nafgettagref(intf *an_id, intf *index, intf *type, intf *tag, intf *ref)
  * Users:   Fortran Users
  * Invokes: ANid2tagerf()
  *---------------------------------------------------------------------------*/
-FRETVAL(intf)
+intf
 nafidtagref(intf *ann_id, intf *tag, intf *ref)
 {
     intf   ret;
@@ -383,7 +375,7 @@ nafidtagref(intf *ann_id, intf *tag, intf *ref)
  * Users:   Fortran Users
  * Invokes: ANtagref2id()
  *---------------------------------------------------------------------------*/
-FRETVAL(intf)
+intf
 naftagrefid(intf *an_id, intf *tag, intf *ref)
 {
     return (intf)ANtagref2id((int32)*an_id, (uint16)*tag, (uint16)*ref);
@@ -397,7 +389,7 @@ naftagrefid(intf *an_id, intf *tag, intf *ref)
  * Users:   Fortran Users
  * Invokes: ANatype2tag()
  *---------------------------------------------------------------------------*/
-FRETVAL(intf)
+intf
 nafatypetag(intf *atype)
 {
     return (intf)ANatype2tag((ann_type)*atype);
@@ -411,7 +403,7 @@ nafatypetag(intf *atype)
  * Users:   Fortran Users
  * Invokes: ANtag2atype()
  *---------------------------------------------------------------------------*/
-FRETVAL(intf)
+intf
 naftagatype(intf *tag)
 {
     return (intf)ANtag2atype((uint16)*tag);

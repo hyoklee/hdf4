@@ -3,7 +3,8 @@
  *   See netcdf/COPYRIGHT file for copying and redistribution conditions.
  *********************************************************************/
 
-#include "h4config.h"
+#include "hdf.h"
+
 #ifdef H4_HAVE_NETCDF
 #include "netcdf.h"
 #else
@@ -15,9 +16,6 @@
 #include "error.h"
 #include "tests.h"
 #include "emalloc.h"
-#ifdef HDF
-#include "hdf.h"
-#endif
 
 #define LEN_OF(array) ((sizeof array) / (sizeof array[0]))
 /* dimension sizes */
@@ -204,7 +202,7 @@ val_stuff(nc_type type, void *v, int ii, long val) /* v[ii] = val */
                     ncclose(cdfid);
                     return 1;
                 }
-                add_dim(&test, &dims[idim]);
+                add_dim(test_g, &dims[idim]);
             }
 
             /* define a multi-dimensional variable of each type */
@@ -219,7 +217,7 @@ val_stuff(nc_type type, void *v, int ii, long val) /* v[ii] = val */
                     ncclose(cdfid);
                     return 1;
                 }
-                add_var(&test, &va[iv]); /* keep in-memory netcdf in sync */
+                add_var(test_g, &va[iv]); /* keep in-memory netcdf in sync */
             }
 
             if (ncendef(cdfid) == -1) {
@@ -263,7 +261,7 @@ val_stuff(nc_type type, void *v, int ii, long val) /* v[ii] = val */
                     nerrs++;
                 }
 
-                add_data(&test, varid[iv], corner, edge); /* keep test in sync */
+                add_data(test_g, varid[iv], corner, edge); /* keep test in sync */
                 /*
                  * For several combinations of fixed dimensions, get a slab and compare
                  * values to function values.

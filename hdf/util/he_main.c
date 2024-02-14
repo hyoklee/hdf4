@@ -61,6 +61,7 @@
  *****************************************************************************/
 /* ------ he.c ------- main() main HDF interfacing routines */
 
+#include "hdfi.h"
 #include "he.h"
 
 #include <stdio.h>
@@ -82,14 +83,21 @@ int he_remote = YES;
 /* is this batch mode or interactive? */
 extern int he_batch;
 
+int       he_currDesc;
+int       he_numDesc;
+int       he_numGrp;
+int       he_backup;
+char     *he_file = NULL;
+DFdesc   *he_desc = NULL;
+HE_GROUP *he_grp  = NULL;
+
 int
 main(int argc, char *argv[])
 {
-    int   backup = YES; /* Backup files when opening? */
-    int   i;
+    int   backup   = YES; /* Backup files when opening? */
     char *fileName = NULL;
 
-    for (i = 1; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {
         if (argv[i][0] == '-') {
             switch (findOpt(argv[i] + 1)) {
                 case HE_HELP:
@@ -132,6 +140,11 @@ main(int argc, char *argv[])
         }
     }
 
+    if (NULL == (he_desc = (DFdesc *)calloc(HE_DESC_SZ, sizeof(DFdesc))))
+        goto error;
+    if (NULL == (he_grp = (HE_GROUP *)calloc(HE_DESC_SZ, sizeof(HE_GROUP))))
+        goto error;
+
     /* if there is a file name given in the command line, open it */
 
     if (fileName)
@@ -142,8 +155,14 @@ main(int argc, char *argv[])
 
     if (fileOpen())
         closeFile(YES); /* close with keep */
-    quit(0);
-    return 0;
+    quit(EXIT_SUCCESS);
+    return EXIT_SUCCESS;
+
+error:
+    free(he_desc);
+    free(he_grp);
+    quit(EXIT_FAILURE);
+    return EXIT_FAILURE;
 }
 
 /* cmdLoop -- read commands and execute them */
@@ -162,14 +181,6 @@ cmdLoop(void)
         deleteCmd(cmd);
     }
 }
-
-int      he_currDesc;
-int      he_numDesc;
-int      he_numGrp;
-int      he_backup;
-char    *he_file;
-DFdesc   he_desc[HE_DESC_SZ];
-HE_GROUP he_grp[HE_DESC_SZ];
 
 int32
 getElement(int desc, char **pdata)
@@ -225,21 +236,26 @@ getTmpName(char **pname)
 int
 writeToFile(char *file, char *data, int32 length)
 {
-    FILE *fd;
+    FILE *fd = NULL;
     int   written;
 
     fd = fopen(file, "w");
     if (fd == NULL)
-        return FAIL;
+        goto error;
 
     written = (int)fwrite(data, sizeof(char), (size_t)length, fd);
     if (written != length) {
         fprintf(stderr, "Error in write.\n");
-        return FAIL;
+        goto error;
     }
     fclose(fd);
 
     return HE_OK;
+
+error:
+    if (fd != NULL)
+        fclose(fd);
+    return FAIL;
 }
 
 int
@@ -275,18 +291,18 @@ copyFile(char *from, char *to)
 {
     int   num_read;
     char  buf[HE_BUF_SZ]; /* copying buffer */
-    FILE *fp;
-    FILE *bfp;
+    FILE *fp  = NULL;
+    FILE *bfp = NULL;
 
     /* open the hdf file for backing up */
     if ((fp = fopen(from, "r")) == NULL) {
         fprintf(stderr, "Unable to open file: <%s>\n", from);
-        return FAIL;
+        goto error;
     }
     if ((bfp = fopen(to, "w")) == NULL) {
         fclose(fp);
         fprintf(stderr, "Unable to open backup file.\n");
-        return FAIL;
+        goto error;
     }
     /* copy the contents from hdf file to backup file */
     while ((num_read = (int)fread(buf, 1, HE_BUF_SZ, fp)) > 0)
@@ -296,6 +312,15 @@ copyFile(char *from, char *to)
     fclose(bfp);
 
     return HE_OK;
+
+error:
+
+    if (fp != NULL)
+        fclose(fp);
+    if (bfp != NULL)
+        fclose(bfp);
+
+    return FAIL;
 }
 
 int
@@ -304,7 +329,7 @@ updateDesc(void)
     int32 fid;
     int32 groupID;
     int32 aid, status;
-    int   i, j;
+    int   i;
 
     if ((fid = Hopen(he_file, DFACC_READ, 0)) == 0) {
         printf("failed opening\n");
@@ -347,7 +372,7 @@ updateDesc(void)
                 HEprint(stderr, 0);
                 return FAIL;
             }
-            for (j = 0; j < he_grp[he_numGrp].size; j++)
+            for (int j = 0; j < he_grp[he_numGrp].size; j++)
                 DFdiget(groupID, &he_grp[he_numGrp].ddList[j].tag, &he_grp[he_numGrp].ddList[j].ref);
 
             he_numGrp++;
@@ -380,7 +405,6 @@ initFile(char *file)
 int
 closeFile(int keep)
 {
-    int   i;
     char *back;
 
     if (!fileOpen()) {
@@ -395,7 +419,7 @@ closeFile(int keep)
     }
     free(he_file);
     he_file = NULL;
-    for (i = 0; i < he_numGrp; i++)
+    for (int i = 0; i < he_numGrp; i++)
         free(he_grp[i].ddList);
 
     return HE_OK;
@@ -404,66 +428,74 @@ closeFile(int keep)
 int
 getR8(int xdim, int ydim, char *image, char *pal, int compress)
 {
-    FILE *fp;
+    FILE *fp = NULL;
     int32 length;
-    char *buf;
+    char *buf = NULL;
 
     if (!fileOpen()) {
         noFile();
-        return FAIL;
+        goto error;
     }
     if (pal)
         if (setPal(pal) < 0)
             /* Error already signalled by setPal */
-            return FAIL;
+            goto error;
 
     length = xdim * ydim;
     buf    = (char *)malloc(length);
 
     if ((fp = fopen(image, "r")) == NULL) {
         fprintf(stderr, "Error opening image file: %s.\n", image);
-        return FAIL;
+        goto error;
     }
     if (fread(buf, (size_t)xdim, (size_t)ydim, fp) < (size_t)ydim) {
         fprintf(stderr, "Error reading image file: %s.\n", image);
-        return FAIL;
+        goto error;
     }
-    fclose(fp);
 
     if (DFR8addimage(he_file, buf, (int32)xdim, (int32)ydim, (uint16)compress) < 0) {
         HEprint(stderr, 0);
-        return FAIL;
+        goto error;
     }
-    free(buf);
 
     if (updateDesc() < 0)
-        return FAIL;
+        goto error;
+
+    fclose(fp);
+    free(buf);
 
     return HE_OK;
+
+error:
+
+    if (fp != NULL)
+        fclose(fp);
+    free(buf);
+
+    return FAIL;
 }
 
 int
 setPal(char *pal)
 {
-    FILE *fp;
+    FILE *fp = NULL;
     char  reds[HE_COLOR_SZ], greens[HE_COLOR_SZ], blues[HE_COLOR_SZ];
     char  palette[HE_PALETTE_SZ];
     char *p;
-    int   i;
 
     if ((fp = fopen(pal, "r")) == NULL) {
         fprintf(stderr, "Error opening palette file: %s.\n", pal);
-        return FAIL;
+        goto error;
     }
     if (fread(reds, 1, HE_COLOR_SZ, fp) < HE_COLOR_SZ || fread(greens, 1, HE_COLOR_SZ, fp) < HE_COLOR_SZ ||
         fread(blues, 1, HE_COLOR_SZ, fp) < HE_COLOR_SZ) {
         fprintf(stderr, "Error reading palette file: %s.\n", pal);
-        return FAIL;
+        goto error;
     }
 
     /* convert sun palette to hdf palette */
     p = palette;
-    for (i = 0; i < HE_COLOR_SZ; i++) {
+    for (int i = 0; i < HE_COLOR_SZ; i++) {
         *p++ = reds[i];
         *p++ = greens[i];
         *p++ = blues[i];
@@ -471,18 +503,24 @@ setPal(char *pal)
 
     if (DFR8setpalette((uint8 *)palette) < 0) {
         fputs("Error setting palette.\n", stderr);
-        return FAIL;
+        goto error;
     }
 
+    fclose(fp);
+
     return HE_OK;
+
+error:
+
+    if (fp != NULL)
+        fclose(fp);
+    return FAIL;
 }
 
 int
 findDesc(tag_ref_ptr dd)
 {
-    int i;
-
-    for (i = 0; i < he_numDesc; i++)
+    for (int i = 0; i < he_numDesc; i++)
         if ((he_desc[i].tag == dd->tag) && (he_desc[i].ref == dd->ref))
             return i;
 
@@ -492,9 +530,7 @@ findDesc(tag_ref_ptr dd)
 int
 desc2Grp(int desc)
 {
-    int i;
-
-    for (i = 0; i < he_numGrp; i++)
+    for (int i = 0; i < he_numGrp; i++)
         if (he_grp[i].desc == desc)
             return i;
 
@@ -505,10 +541,8 @@ desc2Grp(int desc)
 int
 hasReference(int desc)
 {
-    int i, j;
-
-    for (i = 0; i < he_numGrp; i++)
-        for (j = 0; j < he_grp[i].size; j++)
+    for (int i = 0; i < he_numGrp; i++)
+        for (int j = 0; j < he_grp[i].size; j++)
             if (he_grp[i].ddList[j].tag == he_desc[desc].tag && he_grp[i].ddList[j].ref == he_desc[desc].ref)
                 return YES;
     return NO;
@@ -517,18 +551,24 @@ hasReference(int desc)
 int
 deleteDesc(int desc)
 {
-    int32 fid;
+    int32 fid = -1;
 
     if ((fid = Hopen(he_file, DFACC_WRITE, 0)) == -1) {
         HEprint(stderr, 0);
-        return FAIL;
+        goto error;
     }
 
     if (Hdeldd(fid, he_desc[desc].tag, he_desc[desc].ref) == FAIL) {
         HEprint(stderr, 0);
-        return FAIL;
+        goto error;
     }
     return Hclose(fid);
+
+error:
+    if (fid != -1)
+        if (FAIL == Hclose(fid))
+            HEprint(stderr, 0);
+    return FAIL;
 }
 
 int
@@ -562,8 +602,8 @@ getCurrRig(int32 *pXdim, int32 *pYdim, char **pPalette, char **pRaster)
 int
 putWithTempl(char *template, int n1, int n2, int n3, char *data, int length, int verbose)
 {
-    char *file;
-    int   ret;
+    char *file = NULL;
+    int   ret  = FAIL;
 
     convertTemplate(template, n1, n2, n3, &file);
     if (verbose)
@@ -577,7 +617,7 @@ putWithTempl(char *template, int n1, int n2, int n3, char *data, int length, int
 int
 revert(void)
 {
-    char *back;
+    char *back = NULL;
 
     back = backupName(he_file);
     if (copyFile(back, he_file) < 0)
@@ -646,26 +686,32 @@ int
 putElement(char *file, uint16 tag, uint16 ref, char *data, int32 len)
 {
     int32 ret;
-    int32 fid;
+    int32 fid = -1;
 
     if ((fid = Hopen(file, DFACC_READ | DFACC_WRITE, 0)) == FAIL)
         /* a little tricky here */
         if (HEvalue(0) != DFE_FNF || (fid = Hopen(file, DFACC_ALL, 0)) == FAIL) {
             HEprint(stderr, 0);
-            return FAIL;
+            goto error;
         }
     if ((ret = Hputelement(fid, tag, ref, (unsigned char *)data, len)) < 0) {
         HEprint(stderr, 0);
-        return (int)ret;
+        goto error;
     }
     return Hclose(fid);
+
+error:
+    if (fid != -1)
+        if (FAIL == Hclose(fid))
+            HEprint(stderr, 0);
+
+    return FAIL;
 }
 
 int
 writeGrp(char *file)
 {
-    int    i;
-    uint16 ref;
+    uint16 ref = DFREF_NONE;
     int    grp;
     int    elt;
     int    ret;
@@ -676,14 +722,16 @@ writeGrp(char *file)
 
     grp = currGrpNo;
     gid = DFdisetup(he_grp[grp].size);
-    for (i = 0; i < he_grp[grp].size; i++) {
+    for (int i = 0; i < he_grp[grp].size; i++) {
         elt = findDesc(he_grp[grp].ddList + i);
         if (elt >= 0)
             writeElt(file, ref, elt);
-        /* update the group dd list */
+
+        /* Update the group dd list */
         DFdiput(gid, he_grp[grp].ddList[i].tag, ref);
     }
-    /* do the group now */
+
+    /* Do the group now */
 
     if ((fid = Hopen(file, DFACC_READ | DFACC_WRITE, 0)) == FAIL) {
         HEprint(stderr, 0);
@@ -701,12 +749,14 @@ getNewRef(char *file, uint16 *pRef)
 {
     int32 fid;
 
-    if ((fid = Hopen(file, DFACC_READ | DFACC_WRITE, 0)) == FAIL)
+    if ((fid = Hopen(file, DFACC_READ | DFACC_WRITE, 0)) == FAIL) {
         /* a little tricky here */
         if (HEvalue(0) != DFE_FNF || (fid = Hopen(file, DFACC_ALL, 0)) == FAIL) {
             HEprint(stderr, 0);
             return FAIL;
         }
+    }
+
     *pRef = Hnewref(fid);
     return Hclose(fid);
 }
@@ -716,7 +766,7 @@ writeAnnot(char *file, uint16 tag, uint16 ref)
 {
     char  *data;
     int32  eltLength;
-    intn   tmp;
+    int    tmp;
     char  *p;
     uint16 newRef;
 
@@ -799,14 +849,14 @@ putAnn(int ann, uint16 tag, uint16 ref, char *buf, int32 len)
 int32
 readFromFile(char *file, char **pBuf)
 {
-    FILE *fp;
+    FILE *fp = NULL;
     int32 soFar;
     int32 bufLen;
     int32 num_read;
 
     fp = fopen(file, "r");
     if (fp == NULL)
-        return FAIL;
+        goto error;
 
     soFar  = 0;
     bufLen = 0;
@@ -817,7 +867,7 @@ readFromFile(char *file, char **pBuf)
         else
             *pBuf = (char *)realloc(*pBuf, bufLen);
         if (*pBuf == NULL)
-            return FAIL;
+            goto error;
 
         num_read = (int32)fread((*pBuf) + soFar, 1, HE_BUF_SZ, fp);
     }
@@ -825,6 +875,11 @@ readFromFile(char *file, char **pBuf)
     (*pBuf)[soFar] = '\0';
     fclose(fp);
     return soFar;
+
+error:
+    if (fp != NULL)
+        fclose(fp);
+    return FAIL;
 }
 
 /* ---- table for operators -------- */
@@ -878,11 +933,10 @@ findOpt(char *word)
 {
     unsigned len;
     int      found = -1;
-    uintn    i;
 
     len = strlen(word);
 
-    for (i = 0; i < sizeof(he_optTab) / sizeof(he_optTab[0]); i++)
+    for (int i = 0; i < sizeof(he_optTab) / sizeof(he_optTab[0]); i++)
         if (!strncmp(he_optTab[i].str, word, len)) {
             /* exact match */
             if (strlen(he_optTab[i].str) == len)
@@ -903,7 +957,7 @@ findOpt(char *word)
 char *
 catStr(const char *s, const char *s1)
 {
-    char *t;
+    char *t = NULL;
 
     t = (char *)malloc(strlen(s) + strlen(s1) + 1);
     strcpy(t, s);
@@ -914,7 +968,7 @@ catStr(const char *s, const char *s1)
 char *
 copyStr(char *s)
 {
-    char *t;
+    char *t = NULL;
 
     t = (char *)malloc(strlen(s) + 1);
     strcpy(t, s);
@@ -949,12 +1003,14 @@ HEquit(HE_CMD *cmd)
 int
 quit(int status)
 {
+    free(he_desc);
+    free(he_grp);
+
     if (fileOpen()) {
         if (closeFile(0) < 0)
             return HE_FAIL;
     }
     exit(status);
-    return (status); /* never executed.  Just to shut up some compilers */
 }
 
 int
@@ -1022,15 +1078,13 @@ HEwait(HE_CMD *cmd)
 void
 deleteCmd(HE_CMD *cmd)
 {
-    intn i;
-
     if (cmd == NULL)
         return;
     if (cmd->next != NULL)
         deleteCmd(cmd->next);
     if (cmd->sub != NULL)
         deleteCmd(cmd->sub);
-    for (i = 0; i < cmd->argc; i++)
+    for (int i = 0; i < cmd->argc; i++)
         free(cmd->argv[i]);
     free(cmd);
 }

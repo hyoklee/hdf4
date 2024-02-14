@@ -5,7 +5,8 @@
 
 #include <stdio.h>
 
-#include "h4config.h"
+#include "hdf.h"
+
 #ifdef H4_HAVE_NETCDF
 #include "netcdf.h"
 #else
@@ -17,9 +18,6 @@
 #include "error.h"
 #include "tests.h"
 #include "emalloc.h"
-#ifdef HDF
-#include "hdf.h"
-#endif
 
 #define VARS 100
 

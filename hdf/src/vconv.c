@@ -27,8 +27,9 @@
  * Part of the HDF Vset interface.
  */
 
-#define VSET_INTERFACE
-#include "hdf.h"
+#include "hdfi.h"
+#include "hfile.h"
+#include "vgint.h"
 
 /*
  ** ==================================================================

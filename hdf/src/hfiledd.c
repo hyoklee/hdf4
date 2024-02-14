@@ -82,15 +82,9 @@ OLD ROUTINES
     HIupdate_dd             - write an updated dd to the file
     HIregister_tag_ref      - mark a ref as used for a tag
     HIunregister_tag_ref    - mark a ref as un-used for a tag
-
-AUTHOR
-   Quincey Koziol
-
-MODIFICATION HISTORY
-   12/20/95  - Starting writing specs & coding prototype
 */
 
-#include "hdf.h"
+#include "hdfi.h"
 #include "hfile.h"
 
 /* Private routines */
@@ -1237,7 +1231,7 @@ done:
     return ret_value;
 } /* end Hdeldd */
 
-#ifdef DEBUGGING
+#ifdef DD_DEBUG
 /*--------------------------------------------------------------------------
  NAME
     HTPdump_dds -- Dump out the dd information for a file
@@ -1337,7 +1331,7 @@ HTPdump_dds(int32 file_id, FILE *fout)
 done:
     return ret_value;
 } /* HTPdump_dds */
-#endif /* DEBUGGING */
+#endif /* DD_DEBUG */
 
 /* Private, static, internal routines.  Do not call from outside this module */
 

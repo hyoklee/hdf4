@@ -3,13 +3,16 @@
  *   See netcdf/COPYRIGHT file for copying and redistribution conditions.
  *********************************************************************/
 
-#include "h4config.h"
+#include "hdf.h"
+
 #ifdef H4_HAVE_NETCDF
 #include "netcdf.h"
 #else
 #include "hdf4_netcdf.h"
 #endif
 
+#include "emalloc.h"
+#include "testcdf.h"
 #include "tests.h"
 
 /* #define MDEBUG 1 */
@@ -27,6 +30,9 @@
 #include <stdlib.h>
 #include <string.h> /* to remove warnings, HDFFR-1434 */
 
+/* In-memory netcdf structure, kept in sync with disk netcdf */
+struct netcdf *test_g = NULL;
+
 int
 main(void)
 {
@@ -37,6 +43,9 @@ main(void)
     ncopts &= ~NC_VERBOSE; /* turn off error messages */
     ncopts |= NC_VERBOSE;  /* turn  error messages on--AKC */
     ncopts &= ~NC_VERBOSE; /* turn off error messages */
+
+    test_g = (struct netcdf *)emalloc(sizeof(struct netcdf));
+    memset(test_g, 0, sizeof(struct netcdf));
 
     test_nccreate(testfile);
 
@@ -105,6 +114,8 @@ main(void)
     test_ncattdel(testfile);
 
     test_nctypelen();
+
+    free(test_g);
 
     return EXIT_SUCCESS;
 }

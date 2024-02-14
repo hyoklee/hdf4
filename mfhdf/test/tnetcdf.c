@@ -11,9 +11,10 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include "mfhdf.h"
+#include <stdlib.h>
+#include <string.h>
 
-#ifdef HDF
+#include "mfhdf.h"
 
 #include "hdftest.h"
 
@@ -242,5 +243,3 @@ test_netcdf_reading()
     return num_errs;
 } /* test_netcdf_reading() */
 #endif /* NETCDF_READ_TEST */
-
-#endif /* HDF */

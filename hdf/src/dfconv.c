@@ -43,15 +43,13 @@
  Private functions:
     DFKInoset    - Indicate that DFKsetNT hasn't been called
 
- Remarks:
-
  *------------------------------------------------------------------*/
 
 /*****************************************************************************/
 /*                                                                           */
 /*    All the routines in this file marked as static have been marked so    */
 /*  for a reason.  *ANY* of these routines may or may nor be supported in    */
-/*  the next version of HDF (4.00).  Furthurmore, the names, parameters, or   */
+/*  the next version of HDF (4.00).  Furthermore, the names, parameters, or   */
 /*  functionality is *NOT* guaranteed to remain the same.                    */
 /*    The *ONLY* guarantee possible is that DFKnumin(), and DFKnumout()      */
 /*  will not change.  They are *NOT* guaranteed to be implemented in the     */
@@ -63,8 +61,7 @@
 /*                                                                           */
 /*****************************************************************************/
 
-#include <ctype.h>
-#include "hdf.h"
+#include "hdfi.h"
 #include "hconv.h"
 
 /*

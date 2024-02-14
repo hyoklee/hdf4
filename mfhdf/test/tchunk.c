@@ -11,9 +11,9 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include "mfhdf.h"
+#include <string.h>
 
-#ifdef HDF
+#include "mfhdf.h"
 
 #include "hdftest.h"
 
@@ -1383,4 +1383,3 @@ test8:
 done:
     return num_errs;
 } /* test_chunk() */
-#endif /* HDF */

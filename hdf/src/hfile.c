@@ -71,7 +71,7 @@
    Hgetlibversion  -- return version info on current HDF library
    Hgetfileversion -- return version info on HDF file
    HPgetdiskblock  -- Get the offset of a free block in the file.
-   HPfreediskblock -- Release a block in a file to be re-used.
+   HPfreediskblock -- Release a block in a file to be reused.
    HDread_drec -- reads a description record
    HDcheck_empty   -- determines if an element has been written with data
    HDget_special_info -- get information about a special element
@@ -110,11 +110,10 @@
    HIread_version       -- reads a version tag from a file
    + */
 
-#include <string.h>
-
-#include "hdf.h"
-#include "hfile.h"
 #include <errno.h>
+
+#include "hdfi.h"
+#include "hfile.h"
 #include "glist.h" /* for double-linked lists, stacks and queues */
 
 /*--------------------- Locally defined Globals -----------------------------*/
@@ -3007,7 +3006,7 @@ done:
 
 /*-----------------------------------------------------------------------
 NAME
-   HPfreediskblock --- Release a block in a file to be re-used.
+   HPfreediskblock --- Release a block in a file to be reused.
 USAGE
    intn HPfreediskblock(file_rec, block_off, block_size)
    filerec_t *file_rec;     IN: ptr to the file record
@@ -3581,79 +3580,3 @@ Hgetntinfo(const int32 numbertype, hdf_ntinfo_t *nt_info)
     } /* end switch */
     return SUCCEED;
 } /* Hgetntinfo */
-
-#ifdef HAVE_FMPOOL
-/******************************************************************************
-NAME
-     Hmpset - set pagesize and maximum number of pages to cache on next open/create
-
-DESCRIPTION
-     Set the pagesize and maximum number of pages to cache on the next
-     open/create of a file. A pagesize that is a power of 2 is recommended.
-
-     The values set here only affect the next open/creation of a file and
-     do not change a particular file's paging behaviour after it has been
-     opened or created. This maybe changed in a later release.
-
-     Use flags argument of 'MP_PAGEALL' if the whole file is to be cached
-     in memory otherwise pass in zero.
-
-RETURNS
-     Returns SUCCEED if successful and FAIL otherwise
-
-NOTE
-     This calls the real routine MPset().
-     Currently 'maxcache' has to be greater than 1. Maybe use special
-     case of 0 to specify you want to turn page buffering off or use
-     the flags argument.
-
-******************************************************************************/
-int
-Hmpset(int pagesize, /* IN: pagesize to use for next open/create */
-       int maxcache, /* IN: max number of pages to cache */
-       int flags     /* IN: flags = 0, MP_PAGEALL */
-)
-{
-    int ret_value = SUCCEED;
-
-    /* call the real routine */
-    ret_value = MPset(pagesize, maxcache, flags);
-
-done:
-    return ret_value;
-}
-
-/******************************************************************************
-NAME
-     Hmpget - get last pagesize and max number of pages cached for open/create
-
-DESCRIPTION
-     This gets the last pagesize and maximum number of pages cached for
-     the last open/create of a file.
-
-RETURNS
-     Returns SUCCEED.
-
-NOTES
-     This routine calls the real routine MPget().
-******************************************************************************/
-int
-Hmpget(int *pagesize, /* OUT: pagesize to used in last open/create */
-       int *maxcache, /* OUT: max number of pages cached in last open/create */
-       int  flags     /* IN: */
-)
-{
-    int psize     = 0;
-    int mcache    = 0;
-    int ret_value = SUCCEED;
-
-    /* call the real routine */
-    ret_value = MPget(&psize, &mcache, flags);
-    *pagesize = psize;
-    *maxcache = mcache;
-
-done:
-    return ret_value;
-} /* Hmpget() */
-
-#endif /* HAVE_FMPOOL */

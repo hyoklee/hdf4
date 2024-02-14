@@ -11,9 +11,19 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+#include <stdlib.h>
+#include <string.h>
+
+/* Need to pick up H4_HAVE_SYS_STAT_H from mfhdf.h */
+#include "hdfi.h"
 #include "mfhdf.h"
 
-#ifdef HDF
+#ifdef H4_HAVE_UNISTD_H
+#include <unistd.h>
+#endif
+#ifdef H4_HAVE_SYS_STAT_H
+#include <sys/stat.h>
+#endif
 
 #include "hdftest.h"
 
@@ -1101,4 +1111,3 @@ verify_data(int32 sd_id, int32 sds_ind)
     CHECK(status, FAIL, "SDendaccess");
 
 } /* verify_data */
-#endif /* HDF */

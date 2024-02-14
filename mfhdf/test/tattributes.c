@@ -21,9 +21,9 @@
  *
  ****************************************************************************/
 
-#include "mfhdf.h"
+#include <string.h>
 
-#ifdef HDF
+#include "mfhdf.h"
 
 #include "hdftest.h"
 
@@ -279,5 +279,3 @@ test_attributes()
 
     return num_errs;
 }
-
-#endif /* HDF */

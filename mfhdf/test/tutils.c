@@ -11,9 +11,10 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include "mfhdf.h"
+#include <stdlib.h>
+#include <string.h>
 
-#ifdef HDF
+#include "mfhdf.h"
 
 #include "hdftest.h"
 
@@ -382,5 +383,3 @@ verify_datasize(int32 sds_id, int32 data_size, char *sds_name)
     VERIFY(data_size, uncomp_size, msg);
 
 } /* verify_datasize */
-
-#endif /* HDF */

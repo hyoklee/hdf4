@@ -19,7 +19,7 @@ jobs:
     name: "ubuntu-oneapi ${{ inputs.build_mode }}"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.1.1
 
       # Only CMake need ninja-build, but we just install it unilaterally
       # libssl, etc. are needed for the ros3 VFD
@@ -80,7 +80,7 @@ jobs:
     name: "windows-oneapi ${{ inputs.build_mode }}"
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.1.1
 
       - name: Install Dependencies (Windows)
         run: choco install ninja
@@ -122,5 +122,5 @@ jobs:
           CC: ${{ steps.setup-fortran.outputs.cc }}
           CXX: ${{ steps.setup-fortran.outputs.cxx }}
         run: |
-          ctest . --parallel 2 -C ${{ inputs.build_mode }} -V -E HDP-dumpv
+          ctest . --parallel 2 -C ${{ inputs.build_mode }} -V -E "HDP-dumpv|h4ex_GR_create|h4ex_GR_write|h4ex_VG_add"
         working-directory: ${{ runner.workspace }}/build

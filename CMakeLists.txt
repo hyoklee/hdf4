@@ -152,7 +152,6 @@ set (HDF4_SRC_LIB_CORENAME          "hdf")
 set (HDF4_SRC_FCSTUB_LIB_CORENAME   "hdf_fcstub")
 set (HDF4_SRC_FORTRAN_LIB_CORENAME  "hdf_fortran")
 set (HDF4_MF_LIB_CORENAME           "mfhdf")
-set (HDF4_MF_XDR_LIB_CORENAME       "xdr")
 set (HDF4_HDF_TEST_LIB_CORENAME     "hdf_test")
 set (HDF4_HDF_TEST_FCSTUB_LIB_CORENAME     "hdf_test_fcstub")
 set (HDF4_MF_FCSTUB_LIB_CORENAME    "mfhdf_fcstub")
@@ -170,7 +169,6 @@ set (HDF4_SRC_LIB_NAME          "${HDF4_EXTERNAL_LIB_PREFIX}${HDF4_SRC_LIB_COREN
 set (HDF4_SRC_FCSTUB_LIB_NAME   "${HDF4_EXTERNAL_LIB_PREFIX}${HDF4_SRC_FCSTUB_LIB_CORENAME}")
 set (HDF4_SRC_FORTRAN_LIB_NAME  "${HDF4_EXTERNAL_LIB_PREFIX}${HDF4_SRC_FORTRAN_LIB_CORENAME}")
 set (HDF4_MF_LIB_NAME           "${HDF4_EXTERNAL_LIB_PREFIX}${HDF4_MF_LIB_CORENAME}")
-set (HDF4_MF_XDR_LIB_NAME       "${HDF4_EXTERNAL_LIB_PREFIX}${HDF4_MF_XDR_LIB_CORENAME}")
 set (HDF4_HDF_TEST_LIB_NAME     "${HDF4_EXTERNAL_LIB_PREFIX}${HDF4_HDF_TEST_LIB_CORENAME}")
 set (HDF4_HDF_TEST_FCSTUB_LIB_NAME     "${HDF4_EXTERNAL_LIB_PREFIX}${HDF4_HDF_TEST_FCSTUB_LIB_CORENAME}")
 set (HDF4_MF_FCSTUB_LIB_NAME    "${HDF4_EXTERNAL_LIB_PREFIX}${HDF4_MF_FCSTUB_LIB_CORENAME}")
@@ -188,7 +186,6 @@ set (HDF4_SRC_LIB_TARGET          "${HDF4_SRC_LIB_CORENAME}-static")
 set (HDF4_SRC_FCSTUB_LIB_TARGET   "${HDF4_SRC_FCSTUB_LIB_CORENAME}-static")
 set (HDF4_SRC_FORTRAN_LIB_TARGET  "${HDF4_SRC_FORTRAN_LIB_CORENAME}-static")
 set (HDF4_MF_LIB_TARGET           "${HDF4_MF_LIB_CORENAME}-static")
-set (HDF4_MF_XDR_LIB_TARGET       "${HDF4_MF_XDR_LIB_CORENAME}-static")
 set (HDF4_HDF_TEST_LIB_TARGET     "${HDF4_HDF_TEST_LIB_CORENAME}-static")
 set (HDF4_HDF_TEST_FCSTUB_LIB_TARGET     "${HDF4_HDF_TEST_FCSTUB_LIB_CORENAME}-static")
 set (HDF4_MF_FCSTUB_LIB_TARGET    "${HDF4_MF_FCSTUB_LIB_CORENAME}-static")
@@ -202,7 +199,6 @@ set (HDF4_SRC_LIBSH_TARGET          "${HDF4_SRC_LIB_CORENAME}-shared")
 set (HDF4_SRC_FCSTUB_LIBSH_TARGET   "${HDF4_SRC_FCSTUB_LIB_CORENAME}-shared")
 set (HDF4_SRC_FORTRAN_LIBSH_TARGET  "${HDF4_SRC_FORTRAN_LIB_CORENAME}-shared")
 set (HDF4_MF_LIBSH_TARGET           "${HDF4_MF_LIB_CORENAME}-shared")
-set (HDF4_MF_XDR_LIBSH_TARGET       "${HDF4_MF_XDR_LIB_CORENAME}-shared")
 set (HDF4_MF_FCSTUB_LIBSH_TARGET    "${HDF4_MF_FCSTUB_LIB_CORENAME}-shared")
 set (HDF4_MF_FORTRAN_LIBSH_TARGET   "${HDF4_MF_FORTRAN_LIB_CORENAME}-shared")
 set (HDF4_TOOLS_LIBSH_TARGET        "${HDF4_TOOLS_LIB_CORENAME}-shared")
@@ -218,7 +214,6 @@ set (HDF4_MFHDFSOURCE_DIR     ${HDF4_SOURCE_DIR}/mfhdf/libsrc)
 set (HDF4_MFHDF_TEST_DIR      ${HDF4_SOURCE_DIR}/mfhdf/test)
 set (HDF4_MFHDF_UTIL_DIR      ${HDF4_SOURCE_DIR}/mfhdf/util)
 set (HDF4_MFHDF_FORTRAN_DIR   ${HDF4_SOURCE_DIR}/mfhdf/fortran)
-set (HDF4_MFHDF_XDR_DIR       ${HDF4_SOURCE_DIR}/mfhdf/xdr)
 set (HDF4_JAVA_JNI_SRC_DIR         ${HDF4_SOURCE_DIR}/java/src/jni)
 set (HDF4_JAVA_HDF_SRC_DIR         ${HDF4_SOURCE_DIR}/java/src/hdf)
 set (HDF4_JAVA_TEST_SRC_DIR        ${HDF4_SOURCE_DIR}/java/test)
@@ -227,6 +222,8 @@ set (HDF4_JAVA_LOGGING_JAR         ${HDF4_SOURCE_DIR}/java/lib/slf4j-api-1.7.33.
 set (HDF4_JAVA_LOGGING_NOP_JAR     ${HDF4_SOURCE_DIR}/java/lib/ext/slf4j-nop-1.7.33.jar)
 set (HDF4_JAVA_LOGGING_SIMPLE_JAR  ${HDF4_SOURCE_DIR}/java/lib/ext/slf4j-simple-1.7.33.jar)
 set (HDF4_DOXYGEN_DIR              ${HDF4_SOURCE_DIR}/doxygen)
+
+set (HDF4_SRC_INCLUDE_DIRS ${HDF4_HDFSOURCE_DIR} ${HDF4_MFHDFSOURCE_DIR})
 
 set (CMAKE_MODULE_PATH ${HDF_RESOURCES_DIR} ${CMAKE_MODULE_PATH})
 
@@ -262,6 +259,13 @@ set (HDF4_PACKAGE_URL "http://www.hdfgroup.org")
 set (HDF4_PACKAGE_BUGREPORT "help@hdfgroup.org")
 set (HDF4_PACKAGE_SOVERSION "${H4_VERS_MAJOR}.${H4_VERS_RELEASE}.${H4_VERS_MINOR}")
 set (HDF4_PACKAGE_SOVERSION_MAJOR "${H4_VERS_MAJOR}")
+
+#-----------------------------------------------------------------------------
+# Set variables needed for installation
+#-----------------------------------------------------------------------------
+set (HDF4_VERSION_STRING ${HDF4_PACKAGE_VERSION})
+set (HDF4_VERSION_MAJOR  ${HDF4_PACKAGE_VERSION_MAJOR})
+set (HDF4_VERSION_MINOR  ${HDF4_PACKAGE_VERSION_MINOR})
 
 #-----------------------------------------------------------------------------
 # Include some macros for reusable code
@@ -307,7 +311,8 @@ set (CMAKE_INCLUDE_CURRENT_DIR_IN_INTERFACE ON)
 # Include directories in the source or build tree should come before other
 # directories to prioritize headers in the sources over installed ones.
 #-----------------------------------------------------------------------------
-set(CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE ON)
+set (CMAKE_INCLUDE_DIRECTORIES_PROJECT_BEFORE ON)
+set (HDF4_COMP_INCLUDE_DIRECTORIES)
 
 #-----------------------------------------------------------------------------
 # Mac OS X Options
@@ -414,18 +419,6 @@ else ()
 endif ()
 
 #-----------------------------------------------------------------------------
-# Include the main src and config directories
-#-----------------------------------------------------------------------------
-set (HDF4_INCLUDE_DIRECTORIES
-    ${HDF4_HDFSOURCE_DIR}
-    ${HDF4_MFHDFSOURCE_DIR}
-    ${HDF4_SOURCE_DIR}
-    ${HDF4_BINARY_DIR}
-    ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
-)
-INCLUDE_DIRECTORIES (${HDF4_INCLUDE_DIRECTORIES} )
-
-#-----------------------------------------------------------------------------
 # When building utility executables that generate other (source) files :
 # we make use of the following variables defined in the root CMakeLists.
 # Certain systems may add /Debug or /Release to output paths
@@ -447,7 +440,7 @@ if (MSVC)
 endif ()
 
 include (${HDF_RESOURCES_DIR}/HDFCompilerFlags.cmake)
-set (CMAKE_MODULE_PATH ${HDF_RESOURCES_DIR} ${HDF_RESOURCES_DIR} ${CMAKE_MODULE_PATH})
+set (CMAKE_MODULE_PATH ${HDF_RESOURCES_DIR} ${CMAKE_MODULE_PATH})
 
 #-----------------------------------------------------------------------------
 # Include user macros
@@ -475,46 +468,10 @@ if (HDF4_ENABLE_NETCDF)
 endif ()
 
 #-----------------------------------------------------------------------------
-# Option to build HDF4 xdr Library
-#-----------------------------------------------------------------------------
-option (HDF4_BUILD_XDR_LIB  "Build HDF4 XDR Library" OFF)
-if (WIN32 OR MINGW OR APPLE)
-  set (HDF4_BUILD_XDR_LIB ON CACHE BOOL "Build HDF4 XDR Library" FORCE)
-else ()
-  if (NOT HDF4_BUILD_XDR_LIB)
-    include (FindXDR)
-    if (XDR_FOUND)
-      set (CMAKE_REQUIRED_LIBRARIES "${XDR_LIBRARIES}" )
-      message (STATUS "HDF4 XDR Library found: ${XDR_LIBRARIES}")
-      set (LINK_LIBS ${LINK_LIBS} ${XDR_LIBRARIES})
-      set (LINK_SHARED_LIBS ${LINK_SHARED_LIBS} ${XDR_LIBRARIES})
-      include_directories(${XDR_INCLUDE_DIRS})
-    else ()
-      set (HDF4_BUILD_XDR_LIB ON CACHE BOOL "Build HDF4 XDR Library" FORCE)
-      message (STATUS "HDF4 XDR Library will be built")
-    endif ()
-  endif ()
-endif ()
-
-if (HDF4_BUILD_XDR_LIB)
-  set (H4_NO_SYS_XDR_INC 1)
-  add_subdirectory (mfhdf/xdr)
-endif ()
-
-#-----------------------------------------------------------------------------
 # Add the HDF4 Library Target to the build
 #-----------------------------------------------------------------------------
 add_subdirectory (hdf/src)
 add_subdirectory (mfhdf/libsrc)
-
-if (HDF4_BUILD_XDR_LIB)
-  if (NOT ONLY_SHARED_LIBS)
-    add_dependencies (${HDF4_MF_LIB_TARGET} ${HDF4_MF_XDR_LIB_TARGET})
-  endif ()
-  if (BUILD_SHARED_LIBS)
-    add_dependencies (${HDF4_MF_LIBSH_TARGET} ${HDF4_MF_XDR_LIBSH_TARGET})
-  endif ()
-endif ()
 
 #-----------------------------------------------------------------------------
 # Option to build documentation
@@ -602,26 +559,6 @@ add_subdirectory (hdf)
 add_subdirectory (mfhdf)
 
 #-----------------------------------------------------------------------------
-# Option to build HDF4 Examples
-#-----------------------------------------------------------------------------
-if (EXISTS "${HDF4_SOURCE_DIR}/mfhdf/examples" AND IS_DIRECTORY "${HDF4_SOURCE_DIR}/mfhdf/examples")
-  option (HDF4_BUILD_EXAMPLES  "Build HDF4 Examples" OFF)
-  if (HDF4_BUILD_EXAMPLES)
-    if (HDF4_BUILD_FORTRAN)
-      if (EXISTS "${HDF4_SOURCE_DIR}/hdf/fortran/examples" AND IS_DIRECTORY "${HDF4_SOURCE_DIR}/hdf/fortran/examples")
-        add_subdirectory (hdf/fortran/examples)
-      endif ()
-      if (EXISTS "${HDF4_SOURCE_DIR}/mfhdf/fortran/examples" AND IS_DIRECTORY "${HDF4_SOURCE_DIR}/mfhdf/fortran/examples")
-        add_subdirectory (mfhdf/fortran/examples)
-      endif ()
-    endif ()
-
-    add_subdirectory (hdf/examples)
-    add_subdirectory (mfhdf/examples)
-  endif ()
-endif ()
-
-#-----------------------------------------------------------------------------
 # Option to build HDF4 Java Library
 #-----------------------------------------------------------------------------
 if (EXISTS "${HDF4_SOURCE_DIR}/java" AND IS_DIRECTORY "${HDF4_SOURCE_DIR}/java")
@@ -634,6 +571,18 @@ endif ()
 #-----------------------------------------------------------------------------
 # Generate the H4config.h file containing user settings needed by compilation
 #-----------------------------------------------------------------------------
-configure_file (${HDF_RESOURCES_DIR}/h4config.h.in      ${PROJECT_BINARY_DIR}/h4config.h @ONLY)
+configure_file (${HDF_RESOURCES_DIR}/h4config.h.in ${PROJECT_BINARY_DIR}/h4config.h @ONLY)
+
+#-----------------------------------------------------------------------------
+# Option to build examples
+#-----------------------------------------------------------------------------
+if (EXISTS "${HDF4_SOURCE_DIR}/HDF4Examples" AND IS_DIRECTORY "${HDF4_SOURCE_DIR}/HDF4Examples")
+  option (HDF4_BUILD_EXAMPLES  "Build HDF4 Library Examples" ON)
+  if (HDF4_BUILD_EXAMPLES)
+    include (${HDF_RESOURCES_DIR}/HDF4ExampleCache.cmake)
+    set (HDF4_VERSION ${HDF4_PACKAGE_VERSION})
+    add_subdirectory (HDF4Examples)
+  endif ()
+endif ()
 
 include (CMakeInstallation.cmake)

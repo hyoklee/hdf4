@@ -25,9 +25,10 @@
  *	  test_vgisinternal - tests Vgisinternal
  ****************************************************************************/
 
-#include "mfhdf.h"
+#include <stdlib.h>
+#include <string.h>
 
-#ifdef HDF
+#include "mfhdf.h"
 
 #include "hdftest.h"
 
@@ -556,5 +557,3 @@ test_mixed_apis()
         PASSED();
     return num_errs;
 }
-
-#endif /* HDF */

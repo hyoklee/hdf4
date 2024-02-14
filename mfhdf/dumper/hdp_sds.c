@@ -640,7 +640,7 @@ intn
 option_mask_string(int32 options_mask, char *opt_mask_strg)
 {
     intn ret_value = SUCCEED;
-    char numval[10];
+    char numval[16];
 
     strcpy(opt_mask_strg, ""); /* init string to empty string */
 
@@ -707,8 +707,6 @@ option_mask_string(int32 options_mask, char *opt_mask_strg)
 
     return (ret_value);
 } /* option_mask_string */
-  /* #endif
-   */
 
 /*
  * Prints compression method and compression information of a data set.
@@ -755,8 +753,20 @@ print_comp_info(FILE *fp, int32 sds_id, comp_coder_t *comp_type)
                 break;
         } /* switch */
     }
-    else
-        fprintf(fp, "\t Compression method = <Unable to get compression method>\n");
+    else {
+        /* It's likely that SDgetcompinfo failed because SZIP library is not avail */
+        /* Only get compression type and if it's SZIP, display appropriate info */
+        status = SDgetcomptype(sds_id, comp_type);
+        if (status != FAIL && *comp_type == COMP_CODE_SZIP) {
+            fprintf(fp, "\t Compression method = %s\n", comp_method_txt(*comp_type));
+            fprintf(fp, "\t\t Compression information is unavailable (no SZIP library)\n");
+        }
+        /* Failed to get compression type, do not proceed */
+        else {
+            fprintf(fp, "\t Compression method = <Unable to get compression method>\n");
+            return (status);
+        }
+    }
 
     /* print compression ratio */
     if (*comp_type != COMP_CODE_NONE) {

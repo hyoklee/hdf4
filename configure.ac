@@ -13,9 +13,10 @@
 ## help@hdfgroup.org.
 ##
 
-## ======================================================================
+## ----------------------------------------------------------------------
 ## Initialize configure.
-## ======================================================================
+##
+
 ## AC_INIT takes the name of the package, the version number, and an
 ## email address to report bugs. AC_CONFIG_SRCDIR takes a unique file
 ## as its argument.
@@ -24,9 +25,11 @@
 ## release!!!
 ##
 AC_INIT([HDF], [4.2.17-1], [help@hdfgroup.org])
+
 AC_CONFIG_SRCDIR([hdf/src/atom.c])
-AC_CONFIG_AUX_DIR([bin])
 AC_CONFIG_HEADERS([hdf/src/h4config.h])
+
+AC_CONFIG_AUX_DIR([bin])
 AC_CONFIG_MACRO_DIR([m4])
 
 ## AM_INIT_AUTOMAKE takes a list of options that should be applied to
@@ -104,16 +107,41 @@ AC_CONFIG_COMMANDS([h4config], [
   rm -f libhdf4.settings.TMP
 ])
 
-## ======================================================================
-## Information on the package
-## ======================================================================
+## It's possible to configure for a host other than the one on which
+## configure is currently running by using the --host=foo flag.
+## For machines on which HDF4 is often configured, it can be convenient
+## to specify the name of the machine rather than its canonical type.
+##
+## There are currently no hosts, but if there were they would be
+## listed by hostname and the alias would point to a file in
+## the config directory:
+##
+##case $host_alias in
+##  <some host>)
+##    host_alias=<config file in config directory>
+##    ;;
+##esac
 
+AC_CANONICAL_HOST
+AC_SUBST([JNIFLAGS])
+AC_SUBST([AR_FLAGS])
+
+##
+##  FUTURE H4_XXFLAGS GO HERE
+##
+
+## ----------------------------------------------------------------------
 ## Dump all shell variables values.
+##
 AC_MSG_CHECKING([shell variables initial values])
 set >&AS_MESSAGE_LOG_FD
 AC_MSG_RESULT([done])
 
-AC_CANONICAL_HOST
+## ----------------------------------------------------------------------
+## Save system information for the library settings file.
+##
+AC_SUBST([UNAME_INFO])
+UNAME_INFO=`uname -a`
 
 ## ----------------------------------------------------------------------
 ## Some platforms have broken basename, and/or xargs programs. Check
@@ -136,6 +164,20 @@ if test $XARGS_TEST != "xargs_works"; then
   AC_MSG_ERROR([xargs program doesn't work])
 else
   AC_MSG_RESULT([yes])
+fi
+
+## ----------------------------------------------------------------------
+## Check that the cache file was build on the same host as what we're
+## running on now.
+##
+AC_CACHE_CHECK([for cached host], [hdf4_cv_host], [hdf4_cv_host="none"]);
+if test $hdf4_cv_host = "none"; then
+  hdf4_cv_host=$host
+elif test $hdf4_cv_host != $host; then
+  AC_MSG_ERROR([
+     The config.cache file was generated on $hdf4_cv_host but
+     this is $host.  Please remove that file and try again.
+     config.cache file is invalid])
 fi
 
 ## Source any special files that we need. These files normally aren't
@@ -195,10 +237,14 @@ fi
 ## Checks for netCDF-2.3.2 support
 ## ======================================================================
 
-# We disable Fortran netCDF APIs and their testing when --disable-netcdf is used.
-# Let's define a proper variable to be used in mfhdf/testfortran.sh.in to run
-# the netCDF Fortran APIs test program "ftest".
-AC_SUBST(TEST_FORTRAN_NETCDF) TEST_FORTRAN_NETCDF="yes"
+# NOTE!     We disable Fortran netCDF APIs and their testing when
+#           --disable-netcdf is used to avoid conflicts
+
+
+# Define a proper variable to be used in mfhdf/testfortran.sh.in to run
+# the netCDF Fortran APIs test program "ftest"
+AC_SUBST(TEST_FORTRAN_NETCDF)
+TEST_FORTRAN_NETCDF="yes"
 
 AC_ARG_ENABLE([netcdf],
               [AS_HELP_STRING([--enable-netcdf],
@@ -249,8 +295,6 @@ AC_SUBST([BUILD_NETCDF_TOOLS])
 ## Checks for programs
 ## ======================================================================
 
-AC_PROG_MAKE_SET
-
 AC_PROG_CC
 AC_PROG_CPP
 
@@ -287,7 +331,6 @@ AC_SUBST([BUILD_FORTRAN])
 ## ----------------------------------------------------------------------
 ## Check if they would like the Java native interface (JNI) compiled
 ##
-AC_SUBST([JNIFLAGS])
 AC_SUBST([H4_JAVACFLAGS])
 AC_SUBST([H4_JAVAFLAGS])
 
@@ -357,7 +400,6 @@ if test "X${enable_shared}" = "Xyes"; then
     fi
 fi
 
-AC_PROG_INSTALL
 AC_PROG_LN_S
 
 
@@ -379,6 +421,9 @@ AR_FLAGS=cr
 ## correctly.
 export AR
 
+AC_PROG_MAKE_SET
+AC_PROG_INSTALL
+
 AC_CHECK_PROG([DIFF],     [diff],     [diff -w])
 AC_CHECK_PROG([MAKEINFO], [makeinfo], [makeinfo])
 AC_CHECK_PROG([NEQN],     [neqn],     [neqn])
@@ -389,7 +434,6 @@ AC_SUBST([STATIC_SHARED])
 AC_SUBST([SHARED_EXTENSION])
 AC_SUBST([enable_shared])
 AC_SUBST([enable_static])
-AC_SUBST([UNAME_INFO]) UNAME_INFO=`uname -a`
 AC_SUBST([STATIC_EXEC]) STATIC_EXEC=no
 AC_SUBST([LT_STATIC_EXEC])
 
@@ -836,92 +880,6 @@ AC_SUBST([SZIP_HAS_ENCODER])
 
 AM_CONDITIONAL([BUILD_SHARED_SZIP_CONDITIONAL], [test "X$USE_COMP_SZIP" = "Xyes" && test "X$LL_PATH" != "X"])
 
-## ----------------------------------------------------------------------
-## Is XDR support present? The TRY_LINK info was gotten from the
-## mfhdf/libsrc/local_nc.c file.
-AC_MSG_CHECKING([for xdr library support])
-
-AC_ARG_ENABLE([hdf4-xdr],
-              [AS_HELP_STRING([--enable-hdf4-xdr],
-                              [Build xdr library from code in HDF4 source.
-                               Not supported for 64 bit mode. [default="no"]])],
-              [enableval="yes"],[enableval="no"])
-
-case "$enableval" in
-  yes)
-    BUILD_XDR="yes"
-    AC_MSG_RESULT([using HDF4 XDR]);
-    ;;
-  no)
-    BUILD_XDR="no"
-    AC_MSG_RESULT([using system XDR]);
-    ;;
-esac
-
-
-## Check headers and add libraries for XDR if the HDF4 XDR library is not used.
-if test "X$BUILD_XDR" != "Xyes"; then
-  ## For Solaris systems, add the -nsl for XDR support
-  ##
-  ## The SunRPC of the glibc has been replaced by a TI-RPC (Transport Independent RPC) library for IPv6 support
-  ## ======================================================================
-  ## Checks for header files
-  ## ======================================================================
-  HAVE_RPC="yes"
-  HAVE_OLDRPC="yes"
-  HAVE_TIRPC="yes"
-  ## save current settings
-  SYSCPPFLAGS="$CPPFLAGS"
-  SYSCFLAGS="$CFLAGS"
-  case "$host" in
-    *-solaris*)
-      LIBS="$LIBS -lnsl"
-      ;;
-    *-pc-cygwin* | *-linux*)
-      AC_CHECK_HEADER([rpc/rpc.h],[:], [unset HAVE_OLDRPC])
-      AC_CHECK_HEADER([tirpc/netconfig.h],[:], [unset HAVE_TIRPC])
-      if test -z "$HAVE_OLDRPC" ; then
-        LIBS="$LIBS -ltirpc"
-        CFLAGS="$SYSCFLAGS -I/usr/include/tirpc"
-        CPPFLAGS="$SYSCPPFLAGS -I/usr/include/tirpc"
-        if test -z "$HAVE_TIRPC" ; then
-          CFLAGS="$SYSCFLAGS"
-          CPPFLAGS="$SYSCPPFLAGS"
-          AC_MSG_ERROR([couldn't find rpc headers])
-        fi
-      else
-          HAVE_TIRPC=""
-      fi
-      ;;
-    *) ;;
-  esac
-
-  ## ----------------------------------------------------------------------
-  ## We're trying to link against the rpc library when building on Cygwin,
-  ## but we need to make sure that it is present on the system. Do that here,
-  ## The SunRPC of the glibc has been replaced by a TI-RPC (Transport Independent RPC) library for IPv6 support
-  case "$host" in
-    *-pc-cygwin* | *-linux*)
-      if test -n "$HAVE_TIRPC"; then
-        AC_CHECK_LIB([tirpc], [xdr_opaque],[:], [unset HAVE_RPC])
-        if test -z "$HAVE_RPC"; then
-          AC_MSG_ERROR([couldn't find rpc library])
-        fi
-      fi
-      ;;
-  esac
-
-  AC_LINK_IFELSE([AC_LANG_PROGRAM([[
-  #include <rpc/types.h>
-  #include <rpc/xdr.h>]], [[xdr_int]])],[BUILD_XDR="no"],[BUILD_XDR="yes"])
-fi
-
-if test "X$BUILD_XDR" != "Xno"; then
-  AC_DEFINE([NO_SYS_XDR_INC], [1], [Not using system xdr])
-fi
-
-AM_CONDITIONAL([HDF_BUILD_XDR], [test "X$BUILD_XDR" = "Xyes"])
-
 ## ======================================================================
 ## Set POSIX level
 ## ======================================================================
@@ -933,19 +891,6 @@ AM_CONDITIONAL([HDF_BUILD_XDR], [test "X$BUILD_XDR" = "Xyes"])
 CPPFLAGS="-D_POSIX_C_SOURCE=200809L $CPPFLAGS"
 
 ## ======================================================================
-## Checks for endianness functions
-## The htons and ntohs functions are available on most systems.
-## These functions convert betweennetwork endiannessand hostendianness.
-## Network endianness is big-endian; because the standard TCP/IP network
-## protocols use big-endian ordering. These functions come in two sizes:
-## htonl and ntohl operate on 4-byte quantities, and
-## htons and ntohs operate on 2-byte quantities.
-## The hton functions convert host endianness to network endianness.
-## The ntoh functions convert network endianness to host endianness
-## ======================================================================
-AC_CHECK_FUNCS([htonl htons ntohl ntohs])
-
-## ======================================================================
 ## Checks for headers
 ## ======================================================================
 AC_CHECK_HEADERS([fcntl.h unistd.h])
@@ -955,6 +900,24 @@ AC_CHECK_HEADERS([sys/types.h])
 
 AC_CHECK_HEADERS([io.h])
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h])
+
+## Special MinGW checks
+case "`uname`" in
+    MINGW*)
+      # Check for Winsock library
+      AC_CHECK_LIB([ws2_32], [htonl])
+      ;;
+esac
+
+## ----------------------------------------------------------------------
+## XDR grew up in a world where long integers were 32 bits in size. Now
+## that many platforms have 64-bit longs, we need some hacks to paper
+## over the differences in sizes, particularly on big-endian machines.
+##
+
+AC_CHECK_SIZEOF([long])
+
+## ----------------------------------------------------------------------
 
 AC_PROG_CC_C_O
 
@@ -1241,9 +1204,7 @@ AC_CONFIG_FILES([Makefile
                  doxygen/Doxyfile
                  libhdf4.settings
                  hdf/Makefile
-                 hdf/examples/Makefile
                  hdf/fortran/Makefile
-                 hdf/fortran/examples/Makefile
                  hdf/src/Makefile
                  hdf/test/Makefile
                  hdf/util/Makefile
@@ -1251,7 +1212,6 @@ AC_CONFIG_FILES([Makefile
                  hdf/util/h4fc
                  hdf/util/h4redeploy
                  hdf/util/testutil.sh
-                 man/Makefile
                  mfhdf/fortran/ftest.f
                  mfhdf/fortran/jackets.c
                  mfhdf/fortran/netcdf.inc
@@ -1259,10 +1219,7 @@ AC_CONFIG_FILES([Makefile
                  mfhdf/Makefile
                  mfhdf/dumper/Makefile
                  mfhdf/dumper/testhdp.sh
-                 mfhdf/examples/Makefile
-                 mfhdf/examples/testexamples.sh
                  mfhdf/fortran/Makefile
-                 mfhdf/fortran/examples/Makefile
                  mfhdf/fortran/testfortran.sh
                  mfhdf/hdfimport/Makefile
                  mfhdf/hdfimport/testutil.sh
@@ -1279,17 +1236,14 @@ AC_CONFIG_FILES([Makefile
                  mfhdf/nctest/Makefile
                  mfhdf/test/Makefile
                  mfhdf/test/testmfhdf.sh
-                 mfhdf/xdr/Makefile
                  java/Makefile
                  java/src/Makefile
                  java/src/jni/Makefile
                  java/test/Makefile
-                 java/test/junit.sh
-                 java/examples/Makefile])
+                 java/test/junit.sh])
 
 AC_CONFIG_COMMANDS([.classes], [], [$MKDIR_P java/src/.classes;
-                $MKDIR_P java/test/.classes;
-                $MKDIR_P java/examples/.classes])
+                $MKDIR_P java/test/.classes])
 
 AC_OUTPUT
 

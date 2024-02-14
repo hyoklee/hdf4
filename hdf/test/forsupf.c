@@ -11,6 +11,8 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
+#include <stdlib.h>
+
 #include "hdf.h"
 #include "fortest.h"
 
@@ -23,7 +25,7 @@
  * Users:   HDF Fortran programmers
  *---------------------------------------------------------------------------*/
 
-FRETVAL(intf)
+intf
 ngetverb(void)
 {
     char *verb_str;
@@ -45,7 +47,7 @@ ngetverb(void)
  * Invokes: system
  *---------------------------------------------------------------------------*/
 
-FRETVAL(intf)
+intf
 nhisystem(_fcd cmd, intf *cmdlen)
 {
     char *fn;
@@ -71,7 +73,7 @@ nhisystem(_fcd cmd, intf *cmdlen)
  * Users:   HDF Fortran programmers
  *---------------------------------------------------------------------------*/
 
-FRETVAL(intf)
+intf
 nfixnamec(_fcd name, intf *name_len, _fcd name_out, intf *name_len_out)
 {
     char *c_name;

@@ -33,6 +33,7 @@
       "hidden": true,
       "inherits": ["ci-base-tgz", "ci-CompressionVars"],
       "cacheVariables": {
+        "HDF4_PACKAGE_EXTLIBS": "ON",
         "HDF4_ENABLE_JPEG_LIB_SUPPORT": "ON",
         "HDF4_ENABLE_Z_LIB_SUPPORT": "ON",
         "HDF4_ENABLE_SZIP_SUPPORT": "ON",
@@ -43,22 +44,10 @@
       }
     },
     {
-      "name": "ci-ExamplesVars",
-      "hidden": true,
-      "cacheVariables": {
-        "HDF4_EXAMPLES_COMPRESSED": {"type": "STRING", "value": "hdf4-examples-0.3.10.tar.gz"},
-        "HDF4_EXAMPLES_COMPRESSED_DIR": {"type": "PATH", "value": "${sourceParentDir}/temp"},
-        "EXAMPLES_TGZ_ORIGPATH": {"type": "STRING", "value": "https://github.com/HDFGroup/hdf4-examples/archive/refs/tags"},
-        "EXAMPLES_TGZ_ORIGNAME": {"type": "STRING", "value": "v0.3.10.tar.gz"}
-      }
-    },
-    {
       "name": "ci-StdExamples",
       "hidden": true,
-      "inherits": ["ci-base", "ci-ExamplesVars", "ci-base-tgz"],
+      "inherits": ["ci-base", "ci-base-tgz"],
       "cacheVariables": {
-        "EXAMPLES_USE_RELEASE_NAME": "ON",
-        "EXAMPLES_USE_LOCALCONTENT": "OFF",
         "HDF4_PACK_EXAMPLES": "ON",
         "EXAMPLES_DOWNLOAD": "ON"
       }
@@ -69,7 +58,6 @@
       "inherits": ["ci-StdCompression", "ci-StdExamples"],
       "cacheVariables": {
         "HDF_PACKAGE_NAMESPACE": {"type": "STRING", "value": "hdf4::"},
-        "HDF4_BUILD_XDR_LIB": "ON",
         "HDF4_BUILD_GENERATORS": "ON",
         "HDF4_ENABLE_ALL_WARNINGS": "ON",
         "HDF4_MINGW_STATIC_GCC_LIBS": "ON"
@@ -164,11 +152,45 @@
       ]
     },
     {
+      "name": "ci-StdShar-OSX-Clang",
+      "configurePreset": "ci-StdShar-Clang",
+      "inherits": [
+        "ci-x64-Release-Clang"
+      ],
+      "execution": {
+        "noTestsAction": "error",
+        "timeout": 180,
+        "jobs": 2
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Darwin"
+      }
+    },
+    {
       "name": "ci-StdShar-GNUC",
       "configurePreset": "ci-StdShar-GNUC",
       "inherits": [
         "ci-x64-Release-GNUC"
       ]
+    },
+    {
+      "name": "ci-StdShar-win-Intel",
+      "configurePreset": "ci-StdShar-Intel",
+      "inherits": [
+        "ci-x64-Release-Intel"
+      ],
+      "filter": {
+        "exclude": {
+          "name": "HDP-dumpv|h4ex_GR_create|h4ex_GR_write|h4ex_VG_add"
+        }
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
     },
     {
       "name": "ci-StdShar-Intel",
@@ -220,6 +242,15 @@
       ]
     },
     {
+      "name": "ci-StdShar-OSX-Clang",
+      "steps": [
+        {"type": "configure", "name": "ci-StdShar-Clang"},
+        {"type": "build", "name": "ci-StdShar-Clang"},
+        {"type": "test", "name": "ci-StdShar-OSX-Clang"},
+        {"type": "package", "name": "ci-StdShar-Clang"}
+      ]
+    },
+    {
       "name": "ci-StdShar-GNUC",
       "steps": [
         {"type": "configure", "name": "ci-StdShar-GNUC"},
@@ -234,6 +265,15 @@
         {"type": "configure", "name": "ci-StdShar-Intel"},
         {"type": "build", "name": "ci-StdShar-Intel"},
         {"type": "test", "name": "ci-StdShar-Intel"},
+        {"type": "package", "name": "ci-StdShar-Intel"}
+      ]
+    },
+    {
+      "name": "ci-StdShar-win-Intel",
+      "steps": [
+        {"type": "configure", "name": "ci-StdShar-Intel"},
+        {"type": "build", "name": "ci-StdShar-Intel"},
+        {"type": "test", "name": "ci-StdShar-win-Intel"},
         {"type": "package", "name": "ci-StdShar-Intel"}
       ]
     }

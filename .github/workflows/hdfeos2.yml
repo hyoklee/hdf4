@@ -7,7 +7,7 @@ jobs:
     name: Build hdfeos
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Install Autotools Dependencies (Linux)
         run: |
@@ -16,7 +16,7 @@ jobs:
       - name: Install HDF4
         run: |
           ./autogen.sh
-          ./configure --prefix=/usr/local --enable-shared --enable-hdf4-xdr -disable-fortran --disable-netcdf
+          ./configure --prefix=/usr/local --enable-shared --disable-fortran --disable-netcdf
           make
           sudo make install
       - name: Install HDF-EOS2

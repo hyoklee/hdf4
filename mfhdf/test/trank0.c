@@ -18,9 +18,9 @@
  *    test_rank0 - test routine, called in hdftest.c
  ****************************************************************************/
 
-#include "mfhdf.h"
+#include <string.h>
 
-#ifdef HDF
+#include "mfhdf.h"
 
 #include "hdftest.h"
 
@@ -158,5 +158,3 @@ test_rank0()
         PASSED();
     return num_errs;
 }
-
-#endif /* HDF */

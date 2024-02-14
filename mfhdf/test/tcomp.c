@@ -20,9 +20,9 @@
  *
  ****************************************************************************/
 
-#include "mfhdf.h"
+#include <string.h>
 
-#ifdef HDF
+#include "mfhdf.h"
 
 #include "hdftest.h"
 
@@ -847,5 +847,3 @@ test_compression()
 
     return num_errs;
 }
-
-#endif /* HDF */

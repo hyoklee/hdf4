@@ -595,7 +595,7 @@ read_vset_stuff(void)
     status = Vgetnamelen(vg1, &name_len);
     CHECK(status, FAIL, "Vgetnamelen:vg1");
 
-    vgname = (char *)malloc(sizeof(char *) * (name_len + 1));
+    vgname = (char *)malloc(sizeof(char) * (name_len + 1));
     CHECK_ALLOC(vgname, "vgname", "read_vset_stuff");
 
     status = Vgetname(vg1, vgname);
@@ -604,7 +604,7 @@ read_vset_stuff(void)
     status = Vgetclassnamelen(vg1, &name_len);
     CHECK(status, FAIL, "Vgetclassnamelen:vg1");
 
-    vgclass = (char *)malloc(sizeof(char *) * (name_len + 1));
+    vgclass = (char *)malloc(sizeof(char) * (name_len + 1));
     CHECK_ALLOC(vgclass, "vgclass", "read_vset_stuff");
 
     status = Vgetclass(vg1, vgclass);
@@ -826,15 +826,6 @@ read_vset_stuff(void)
     status = VSdetach(vs1);
     CHECK(status, FAIL, "VSdetach:vs1");
 
-#ifndef HAVE_FMPOOL
-    /* Commented out this test when using the file caching.This is because this
-       test opens the external file directly without using HDF calls. As a result
-       the file memory pool buffer that was created for this external file will
-       not be shared with this low-level call as the low-level file cache open
-       creates a unique pool for every call. It is up to the programmer
-       then to share the file pool. -GeorgeV
-     */
-
     /* testing VSsetexternalfile by reading the external file directly */
     {
         hdf_file_t fd;
@@ -872,7 +863,6 @@ read_vset_stuff(void)
             HI_CLOSE(fd);
         }
     }
-#endif /* HAVE_FMPOOL */
 
     /* Move to the next one (integers + floats) */
     ref = VSgetid(fid, ref);
@@ -1833,7 +1823,7 @@ test_vglongnames(void)
     status = Vgetnamelen(vg1, &name_len);
     CHECK_VOID(status, FAIL, "Vgetnamelen");
 
-    vgname = (char *)malloc(sizeof(char *) * (name_len + 1));
+    vgname = (char *)malloc(sizeof(char) * (name_len + 1));
     CHECK_ALLOC(vgname, "vgname", "test_vglongnames");
 
     status = Vgetname(vg1, vgname);
@@ -1850,7 +1840,7 @@ test_vglongnames(void)
     status = Vgetclassnamelen(vg1, &name_len);
     CHECK_VOID(status, FAIL, "Vgetnamelen");
 
-    vgclass = (char *)malloc(sizeof(char *) * (name_len + 1));
+    vgclass = (char *)malloc(sizeof(char) * (name_len + 1));
     CHECK_ALLOC(vgclass, "vgclass", "test_vglongnames");
 
     status = Vgetclass(vg1, vgclass);
@@ -1877,7 +1867,7 @@ test_vglongnames(void)
     status = Vgetnamelen(vg1, &name_len);
     CHECK_VOID(status, FAIL, "Vgetnamelen");
 
-    vgname = (char *)malloc(sizeof(char *) * (name_len + 1));
+    vgname = (char *)malloc(sizeof(char) * (name_len + 1));
     CHECK_ALLOC(vgname, "vgname", "test_vglongnames");
 
     status = Vgetname(vg1, vgname);
@@ -1894,7 +1884,7 @@ test_vglongnames(void)
     status = Vgetclassnamelen(vg1, &name_len);
     CHECK_VOID(status, FAIL, "Vgetnamelen");
 
-    vgclass = (char *)malloc(sizeof(char *) * (name_len + 1));
+    vgclass = (char *)malloc(sizeof(char) * (name_len + 1));
     CHECK_ALLOC(vgclass, "vgclass", "test_vglongnames");
 
     status = Vgetclass(vg1, vgclass);
@@ -2759,7 +2749,7 @@ test_extfile(void)
         name_len = VSgetexternalfile(vdata1_id, 0, NULL, NULL);
         VERIFY_VOID(name_len, (intn)strlen(EXTERNAL_FILE), "VSgetexternalfile");
 
-        extfile_name = (char *)malloc(sizeof(char *) * (name_len + 1));
+        extfile_name = (char *)malloc(sizeof(char) * (name_len + 1));
         CHECK_ALLOC(extfile_name, "extfile_name", "test_extfile");
 
         /* Old function: Get the external file name - VSgetexternalfile
@@ -2774,7 +2764,7 @@ test_extfile(void)
     name_len = VSgetexternalinfo(vdata1_id, 0, NULL, NULL, NULL);
     VERIFY_VOID(name_len, (intn)strlen(EXTERNAL_FILE), "VSgetexternalinfo");
 
-    extfile_name = (char *)malloc(sizeof(char *) * (name_len + 1));
+    extfile_name = (char *)malloc(sizeof(char) * (name_len + 1));
     CHECK_ALLOC(extfile_name, "extfile_name", "test_extfile");
 
     /* Get the external file name */
@@ -2787,13 +2777,13 @@ test_extfile(void)
        name should be truncated */
     {
         /* Make a shorter string to verify later */
-        char *short_name = (char *)malloc(sizeof(char *) * (name_len));
+        char *short_name = (char *)malloc(sizeof(char) * (name_len));
         memset(short_name, '\0', name_len);
         strncpy(short_name, EXTERNAL_FILE, name_len - 2);
 
         /* Prepare buffer for external file name in the following test */
-        extfile_name = (char *)malloc(sizeof(char *) * (name_len - 1));
-        memset(extfile_name, '\0', name_len);
+        extfile_name = (char *)malloc(sizeof(char) * (name_len - 1));
+        memset(extfile_name, '\0', name_len - 1);
 
         /* Call VSgetexternalinfo again with smaller buffer size and make sure
            VSgetexternalinfo reads the name truncated to the given buffer size*/

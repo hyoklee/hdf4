@@ -27,9 +27,9 @@
  *	and SDgetdatasize.
  ****************************************************************************/
 
-#include "mfhdf.h"
+#include <string.h>
 
-#ifdef HDF
+#include "mfhdf.h"
 
 #include "hdftest.h"
 
@@ -634,5 +634,3 @@ test_datasizes()
         PASSED();
     return num_errs;
 }
-
-#endif /* HDF */

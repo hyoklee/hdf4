@@ -18,11 +18,10 @@
  *
  * C routines (short names) to be called from fortran
  *
- *
  ******************************************************/
 
-#define VSET_INTERFACE
-#include "hdf.h"
+#include "hdfi.h"
+#include "vgint.h"
 #include "hproto_fortran.h"
 
 /* ----------------- vsfcfdx ----------------------
@@ -30,7 +29,7 @@
  *  VSfindex -- vsfcfdx -- vsffidx
  */
 
-FRETVAL(intf)
+intf
 nvsfcfdx(intf *vsid, _fcd fldnm, intf *findex, intf *fldnmlen)
 {
     intf  ret;
@@ -50,7 +49,7 @@ nvsfcfdx(intf *vsid, _fcd fldnm, intf *findex, intf *fldnmlen)
  * VSsetattr -- vsfcsat -- vsfsnat
  */
 
-FRETVAL(intf)
+intf
 nvsfcsat(intf *vsid, intf *findex, _fcd attrnm, intf *dtype, intf *count, intf *values, intf *attrnmlen)
 {
     intf  ret;
@@ -73,7 +72,7 @@ nvsfcsat(intf *vsid, intf *findex, _fcd attrnm, intf *dtype, intf *count, intf *
  * VSsetattr -- vsfcsca -- vsfscat
  */
 
-FRETVAL(intf)
+intf
 nvsfcsca(intf *vsid, intf *findex, _fcd attrnm, intf *dtype, intf *count, _fcd values, intf *attrnmlen)
 {
     intf  ret;
@@ -96,7 +95,7 @@ nvsfcsca(intf *vsid, intf *findex, _fcd attrnm, intf *dtype, intf *count, _fcd v
  * VSnattrs -- vsfnats
  */
 
-FRETVAL(intf)
+intf
 nvsfnats(intf *vsid)
 {
     intf ret;
@@ -111,7 +110,7 @@ nvsfnats(intf *vsid)
  * VSfnattrs -- vsffnas
  */
 
-FRETVAL(intf)
+intf
 nvsffnas(intf *vsid, intf *findex)
 {
     intf  ret;
@@ -128,7 +127,7 @@ nvsffnas(intf *vsid, intf *findex)
  *    VSfindattr -- vsfcfda -- vsffdat
  */
 
-FRETVAL(intf)
+intf
 nvsfcfda(intf *vsid, intf *findex, _fcd attrnm, intf *attrnmlen)
 {
     intf  ret;
@@ -150,7 +149,7 @@ nvsfcfda(intf *vsid, intf *findex, _fcd attrnm, intf *attrnmlen)
  * VSattrinfo -- vsfcain -- vsfainf
  */
 
-FRETVAL(intf)
+intf
 nvsfcain(intf *vsid, intf *findex, intf *aindex, _fcd attrname, intf *dtype, intf *count, intf *size,
          intf *attrnamelen)
 {
@@ -184,7 +183,7 @@ nvsfcain(intf *vsid, intf *findex, intf *aindex, _fcd attrname, intf *dtype, int
  * VSgetattr -- vsfgnat
  */
 
-FRETVAL(intf)
+intf
 nvsfgnat(intf *vsid, intf *findex, intf *aindex, intf *values)
 {
     intf  ret;
@@ -200,7 +199,7 @@ nvsfgnat(intf *vsid, intf *findex, intf *aindex, intf *values)
  * VSgetattr -- vsfgcat
  */
 
-FRETVAL(intf)
+intf
 nvsfgcat(intf *vsid, intf *findex, intf *aindex, _fcd values)
 {
     intf  ret;
@@ -216,7 +215,7 @@ nvsfgcat(intf *vsid, intf *findex, intf *aindex, _fcd values)
  * VSisattr -- vsfisat
  */
 
-FRETVAL(intf)
+intf
 nvsfisat(intf *vsid)
 {
     intf ret;
@@ -229,7 +228,7 @@ nvsfisat(intf *vsid)
  * Vsetattr -- vfcsatt -- vfsnatt
  */
 
-FRETVAL(intf)
+intf
 nvfcsatt(intf *vgid, _fcd attrnm, intf *dtype, intf *count, intf *values, intf *attrnmlen)
 {
     intf  ret;
@@ -249,7 +248,7 @@ nvfcsatt(intf *vgid, _fcd attrnm, intf *dtype, intf *count, intf *values, intf *
  * Vsetattr -- vfcscat -- vfscatt
  */
 
-FRETVAL(intf)
+intf
 nvfcscat(intf *vgid, _fcd attrnm, intf *dtype, intf *count, _fcd values, intf *attrnmlen)
 {
     intf  ret;
@@ -268,7 +267,7 @@ nvfcscat(intf *vgid, _fcd attrnm, intf *dtype, intf *count, _fcd values, intf *a
  * Vnattrs -- vfnatts
  */
 
-FRETVAL(intf)
+intf
 nvfnatts(intf *vgid)
 {
     intf ret;
@@ -282,7 +281,7 @@ nvfnatts(intf *vgid)
  * Vfindattr -- vfcfdat -- vffdatt
  */
 
-FRETVAL(intf)
+intf
 nvfcfdat(intf *vgid, _fcd attrnm, intf *attrnmlen)
 {
     intf  ret;
@@ -301,7 +300,7 @@ nvfcfdat(intf *vgid, _fcd attrnm, intf *attrnmlen)
  * Vattrinfo -- vfainfo
  */
 
-FRETVAL(intf)
+intf
 nvfainfo(intf *vgid, intf *aindex, _fcd attrname, intf *dtype, intf *count, intf *size)
 {
     intf ret;
@@ -315,7 +314,7 @@ nvfainfo(intf *vgid, intf *aindex, _fcd attrname, intf *dtype, intf *count, intf
  * Vgetattr -- vfgnatt
  */
 
-FRETVAL(intf)
+intf
 nvfgnatt(intf *vgid, intf *aindex, intf *values)
 {
     intf ret;
@@ -328,7 +327,7 @@ nvfgnatt(intf *vgid, intf *aindex, intf *values)
  * Vgetattr -- vfgcatt
  */
 
-FRETVAL(intf)
+intf
 nvfgcatt(intf *vgid, intf *aindex, _fcd values)
 {
     intf ret;
@@ -341,7 +340,7 @@ nvfgcatt(intf *vgid, intf *aindex, _fcd values)
  * Vgetversion -- vfgver
  */
 
-FRETVAL(intf)
+intf
 nvfgver(intf *vgid)
 {
     intf ret;

@@ -31,15 +31,15 @@ cmake_minimum_required (VERSION 3.12)
 #     NO_MAC_FORTRAN  - Yes to be SHARED on a Mac
 ##############################################################################
 
-set (CTEST_SOURCE_VERSION "4.2.17")
-set (CTEST_SOURCE_VERSEXT "-2")
+set (CTEST_SOURCE_VERSION "4.3.0")
+set (CTEST_SOURCE_VERSEXT "-1, currently under development")
 
 ##############################################################################
 # handle input parameters to script.
 #BUILD_GENERATOR - which CMake generator to use, required
-#INSTALLDIR - HDF-4.2.x root folder
+#INSTALLDIR - HDF-4.3.x root folder
 #CTEST_CONFIGURATION_TYPE - Release, Debug, RelWithDebInfo
-#CTEST_SOURCE_NAME - name of source folder; HDF-4.2.x
+#CTEST_SOURCE_NAME - name of source folder; HDF-4.3.x
 #STATIC_ONLY - Default is YES
 #FORTRAN_LIBRARIES - Default is NO
 #NO_MAC_FORTRAN - set to TRUE to allow shared libs on a Mac
