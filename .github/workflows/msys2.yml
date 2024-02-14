@@ -43,6 +43,7 @@ jobs:
             toolchain:p
             cmake:p
             ninja:p
+            libjpeg-turbo:p
       - name: Test HDF5
         shell: msys2 {0}
         run: |

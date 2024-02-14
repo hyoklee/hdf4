@@ -42,7 +42,8 @@ jobs:
             autotools
           pacboy: >-
             toolchain:p
-      - name: Test HDF5
+            libjpeg-turbo:p
+      - name: Test HDF4
         shell: msys2 {0}
         run: |
           uname -a
