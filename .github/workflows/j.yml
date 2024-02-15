@@ -1,4 +1,4 @@
-name: i386
+name: j
 
 on: [push, pull_request]
 
@@ -11,7 +11,7 @@ jobs:
       matrix:
         os:
           - name: openbsd
-            architecture: i386
+            architecture: x86-64
             version: '7.4'
             host: ubuntu-latest
     steps:
@@ -37,14 +37,15 @@ jobs:
             whoami
             env | sort
             sudo pkg_add git
-            git clone https://github.com/HDFGroup/hdf4
+            git clone https://github.com/hyoklee/hdf4-1
             cd hdf4
             sudo pkg_add cmake
             sudo pkg_add jpeg
+            sudo pkg_add devel/jdk/21
             mkdir build
             cd build
-            cmake -DHDF4_BUILD_FORTRAN:BOOL=OFF .. -D CTEST_DROP_SITE_INIT:STRING="my.cdash.org" -D SITE:STRING=i386.obsd  ..
+            cmake -DHDF4_BUILD_FORTRAN:BOOL=OFF -D HDF4_BUILD_JAVA=ON -D CTEST_DROP_SITE_INIT:STRING="my.cdash.org" -D SITE:STRING=j.obsd  ..
             ctest -T Build --output-on-error -j
-            ctest -T -VVV Test --output-on-error -j
+            ctest -T Test --output-on-error -j
             ctest -T Submit	    
 

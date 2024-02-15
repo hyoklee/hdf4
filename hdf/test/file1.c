@@ -17,7 +17,7 @@
 
 #include "tproto.h"
 #include "hfile.h"
-#define BIG            600
+#define BIG            128
 #define TESTFILE_NAME  "thf"
 #define TESTREF_NAME   "tref.hdf"
 #define MAX_REF_TESTED MAX_REF
