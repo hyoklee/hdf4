@@ -40,6 +40,7 @@ jobs:
             sudo pkg_add jpeg
             mkdir build
             cd build
-            cmake -DHDF4_BUILD_FORTRAN:BOOL=OFF ..
-            make
-            make test
+            cmake -D HDF4_BUILD_FORTRAN:BOOL=OFF -D CTEST_DROP_SITE_INIT:STRING="my.cdash.org" -D SITE:STRING=obsd  ..
+            ctest -T Build --output-on-error -j
+            ctest -T Test --output-on-error -j
+            ctest -T Submit	    
