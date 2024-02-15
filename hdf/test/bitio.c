@@ -22,6 +22,10 @@
 #define TESTFILE_NAME "tbitio.hdf"
 #define DATAFILE_NAME "test_files/bitio.dat"
 
+#ifndef UINT_MAX
+#define UINT_MAX (unsigned)(-1)
+#endif /* UINT_MAX */
+
 #ifndef RAND_MAX
 #define RAND_MAX (UINT_MAX)
 #endif
