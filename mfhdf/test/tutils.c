@@ -15,8 +15,69 @@
 #include <string.h>
 
 #include "mfhdf.h"
-
 #include "hdftest.h"
+#include "srcdir_str.h"
+
+/* Buffer to construct path in and return pointer to */
+static char srcdir_path[1024];
+
+/* Buffer to construct file in and return pointer to */
+static char srcdir_testpath[1024];
+
+/*-------------------------------------------------------------------------
+ * Function:    get_srcdir_filename
+ *
+ * Purpose:     Append the test file name to the srcdir path and return the whole string
+ *
+ * Return:      The string or NULL (errors or not enough space)
+ *
+ *-------------------------------------------------------------------------
+ */
+const char *
+get_srcdir_filename(const char *filename)
+{
+    const char *srcdir = get_srcdir();
+
+    /* Check for error */
+    if (NULL == srcdir)
+        return NULL;
+
+    /* Build path to test file */
+    if ((strlen(srcdir) + strlen(filename) + 1) < sizeof(srcdir_testpath)) {
+        snprintf(srcdir_testpath, sizeof(srcdir_testpath), "%s/%s", srcdir, filename);
+        return srcdir_testpath;
+    }
+
+    /* If not enough space, just return NULL */
+    return NULL;
+} /* end get_srcdir_filename() */
+
+/*-------------------------------------------------------------------------
+ * Function:    get_srcdir
+ *
+ * Purpose:     Just return the srcdir path
+ *
+ * Return:      The string
+ *
+ *-------------------------------------------------------------------------
+ */
+const char *
+get_srcdir(void)
+{
+    const char *srcdir = getenv("srcdir");
+
+    /* Check for using the srcdir from configure time */
+    if (NULL == srcdir)
+        srcdir = config_srcdir;
+
+    /* Build path to all test files */
+    if ((strlen(srcdir) + 2) < sizeof(srcdir_path)) {
+        snprintf(srcdir_path, sizeof(srcdir_path), "%s/", srcdir);
+        return (srcdir_path);
+    }
+    else
+        return NULL;
+} /* end get_srcdir() */
 
 /********************************************************************
    Name: make_sourcepath() - Generates the source path
@@ -34,7 +95,7 @@ make_sourcepath(char *src_path, unsigned int size)
     char *tempdir = NULL;
 
     tempdir = (char *)malloc(size * sizeof(char));
-    CHECK_ALLOC(tempdir, "tempdir", "make_datafilename");
+    CHECK_ALLOC(tempdir, "tempdir", "make_sourcepath");
     memset(tempdir, 0, size);
 
     /* Generate the source path */
@@ -54,41 +115,6 @@ make_sourcepath(char *src_path, unsigned int size)
 
     strcpy(src_path, tempdir);
     free(tempdir);
-    return SUCCEED;
-}
-
-/********************************************************************
-   Name: make_datafilename() - Generates the correct name for the test file.
-   Description:
-    Generate the correct name for the test file by prepending the source
-    path if it exists, otherwise, assume it is the local directory.
-   Return value:
-        Returns SUCCEED if the file name is generated successfully, or
-    FAIL, otherwise.
-*********************************************************************/
-intn
-make_datafilename(const char *basename, char *testfile, unsigned int size)
-{
-    char *srcdir   = getenv("srcdir");
-    char *tempfile = NULL;
-
-    /* Leave room for the file name and null char */
-    unsigned int max_dir_len = size - strlen(basename) - 1;
-
-    tempfile = (char *)malloc(size * sizeof(char));
-    CHECK_ALLOC(tempfile, "tempfile", "make_datafilename");
-
-    if (make_sourcepath(tempfile, max_dir_len) == FAIL) {
-        free(tempfile);
-        return FAIL;
-    }
-
-    /* Name of data file */
-    strcat(tempfile, basename);
-
-    /* File name is generated, return it */
-    strcpy(testfile, tempfile);
-    free(tempfile);
     return SUCCEED;
 }
 

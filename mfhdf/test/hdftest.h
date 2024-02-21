@@ -101,11 +101,14 @@
 
 /*************************** Utility Functions ***************************/
 
+/* Just return the srcdir path */
+const char *get_srcdir(void);
+
+/* Append the test file name to the srcdir path and return the whole string */
+const char *get_srcdir_filename(const char *filename);
+
 /* Generates the correct name of the source path */
 intn make_sourcepath(char *src_path, unsigned int size);
-
-/* Generates the correct name for the test file */
-intn make_datafilename(const char *basename, char *testfile, unsigned int size);
 
 /* Calls SDcreate, SDwritedata, and SDendaccess */
 int32 make_SDS(int32 sd_id, char *sds_name, int32 type, int32 rank, int32 *dim_sizes, int32 unlim_dim,

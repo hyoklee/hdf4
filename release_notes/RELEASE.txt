@@ -39,6 +39,13 @@ New features and changes
 ========================
     Configuration:
     -------------
+    - New option for building and naming tools in CMake
+
+      The following option has been added:
+        HDF4_BUILD_STATIC_TOOLS    "Build Static Tools Not Shared Tools"          OFF
+
+      The default will build shared tools unless BUILD_SHARED_LIBS = OFF.
+
     - XDR changes
 
       We now only support building HDF4 with the XDR implementation packaged
@@ -124,7 +131,40 @@ New features and changes
 
     C Library:
     ----------
-      hdfi.h is no longer included by hdf.h
+    - Private headers are no longer deployed
+
+      The following private headers are not a part of the public API and
+      will no longer be deployed when installing the library:
+      
+        atom.h
+        bitvect.h
+        cdeflate.h
+        cnbit.h
+        cnone.h
+        crle.h
+        cskphuff.h
+        cszip.h
+        df.h
+        dfan.h
+        dfgr.h
+        dfrig.h
+        dfsd.h
+        dfufp2i.h
+        dynarray.h
+        hchunks.h
+        hcompi.h
+        hconv.h
+        hdfi.h
+        hfile.h
+        hkit.h
+        linklist.h
+        local_nc.h
+        mfani.h
+        mfgri.h
+        mstdio.h
+        tbbt.h
+
+    - hdfi.h is no longer included by hdf.h
 
       In the past, hdfi.h (an internal header file) was included in the
       public hdf.h header. This is no longer the case. Anything that
@@ -155,6 +195,16 @@ Support for new platforms and compilers
 
 Bugs fixed since HDF 4.2.16
 ===========================
+
+    - Fix --with-szlib with no paths not detecting the encoder
+
+      The --with-szlib option in the Autotools has been broken when used
+      without include/library paths for the past decade (git blame says 11
+      years ago). A misnamed variable and a missing setting would skip
+      the encoder check, so the library could only be added in decode-only
+      mode.
+
+      This has been fixed and szip encoding will now be detected normally.
 
     - Fixed an external file bug introduced in 4.2.16
 

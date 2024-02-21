@@ -31,8 +31,8 @@
  *
  *********************************************************************** */
 
-#include "hdfi.h"
-#include "vgint.h"
+#include "hdf_priv.h"
+#include "vg_priv.h"
 #include "hproto_fortran.h"
 
 /*
@@ -680,7 +680,7 @@ nvssextfc(intf *id, _fcd name, intf *offset, intf *namelen)
     if (!fn)
         return FAIL;
     ret = (intf)VSsetexternalfile(*id, fn, *offset);
-    free((void *)fn);
+    free(fn);
     return ret;
 }
 

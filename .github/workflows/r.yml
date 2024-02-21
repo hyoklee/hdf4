@@ -27,19 +27,13 @@ jobs:
           version: '${{ matrix.os.version }}'
           shell: bash          
           run: |
-            uname -a
-            echo $SHELL
-            pwd
-            ls -lah
-            whoami
-            env | sort
             sudo pkg_add git
-            git clone https://github.com/HDFGroup/hdf4
-            cd hdf4
             sudo pkg_add cmake
             sudo pkg_add jpeg
+            git clone https://github.com/hyoklee/hdf4
+            cd hdf4
             mkdir build
             cd build
-            cmake -DHDF4_BUILD_FORTRAN:BOOL=OFF ..
-            make
-            make test
+            cmake ..
+            cmake -T Build
+            cmake -T Test

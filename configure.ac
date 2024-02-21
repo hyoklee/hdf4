@@ -328,6 +328,20 @@ esac
 AM_CONDITIONAL([HDF_BUILD_FORTRAN], [test "X$BUILD_FORTRAN" = "Xyes"])
 AC_SUBST([BUILD_FORTRAN])
 
+## -------------------------------------------------------------------------
+## Build static libraries by default. Furthermore, fortran shared libraries
+## are unsupported. Disallow a user from enabling both shared libraries and
+## fortran.
+if test "X${enable_shared}" != "Xyes"; then
+    enable_shared="no"
+fi
+
+if test "X${enable_shared}" = "Xyes"; then
+    if test "X${BUILD_FORTRAN}" = "Xyes"; then
+        AC_MSG_ERROR([Cannot build shared fortran libraries. Please configure with --disable-fortran flag.])
+    fi
+fi
+
 ## ----------------------------------------------------------------------
 ## Check if they would like the Java native interface (JNI) compiled
 ##
@@ -350,7 +364,7 @@ AC_ARG_ENABLE([java],
 
 if test "X$HDF_JAVA" = "Xyes"; then
   if test "X${enable_shared}" != "Xno"; then
-    echo "yes"
+    AC_MSG_RESULT([yes])
     if test "X$CLASSPATH" = "X"; then
       H4_CLASSPATH=".:$srcdir/java/lib"
     else
@@ -386,22 +400,7 @@ else
   AC_MSG_RESULT([no])
 fi
 
-## -------------------------------------------------------------------------
-## Build static libraries by default. Furthermore, fortran shared libraries
-## are unsupported. Disallow a user from enabling both shared libraries and
-## fortran.
-if test "X${enable_shared}" != "Xyes"; then
-    enable_shared="no"
-fi
-
-if test "X${enable_shared}" = "Xyes"; then
-    if test "X${BUILD_FORTRAN}" = "Xyes"; then
-        AC_MSG_ERROR([Cannot build shared fortran libraries. Please configure with --disable-fortran flag.])
-    fi
-fi
-
 AC_PROG_LN_S
-
 
 ## ----------------------------------------------------------------------
 ## Check which archiving tool to use. This needs to be done before
@@ -569,14 +568,14 @@ AC_ARG_ENABLE([static_exec],
               [STATIC_EXEC=$enableval])
 
 if test "X$STATIC_EXEC" = "Xyes"; then
-  echo "yes"
+  AC_MSG_RESULT([yes])
   ## Issue a warning if -static flag is not supported.
   if test "X$lt_cv_prog_compiler_static_works" = "Xno"; then
-      echo "    warning: -static flag not supported on this system; executable won't statically link shared system libraries."
+      AC_MSG_WARN([-static flag not supported on this system; executable won't statically link shared system libraries])
   fi
   LT_STATIC_EXEC="-all-static"
 else
-  echo "no"
+  AC_MSG_RESULT([no])
   LT_STATIC_EXEC=""
 fi
 
@@ -757,12 +756,14 @@ case "X-$withval" in
   X-yes)
     HAVE_SZIP="yes"
     AC_CHECK_HEADERS([szlib.h], [HAVE_SZLIB_H="yes"], [unset HAVE_SZIP])
-    if test "x$HAVE_SZLIB" = "xyes" -a "x$HAVE_SZLIB_H" = "xyes"; then
+    if test "x$HAVE_SZIP" = "xyes" -a "x$HAVE_SZLIB_H" = "xyes"; then
       AC_CHECK_LIB([sz], [SZ_BufftoBuffCompress],, [unset HAVE_SZIP])
     fi
 
     if test -z "$HAVE_SZIP"; then
       AC_MSG_ERROR([couldn't find szlib library])
+    else
+      USE_COMP_SZIP="yes"
     fi
     ;;
   X-|X-no|X-none)
@@ -1207,6 +1208,7 @@ AC_CONFIG_FILES([Makefile
                  hdf/fortran/Makefile
                  hdf/src/Makefile
                  hdf/test/Makefile
+                 hdf/test/srcdir_str.h
                  hdf/util/Makefile
                  hdf/util/h4cc
                  hdf/util/h4fc
@@ -1235,6 +1237,7 @@ AC_CONFIG_FILES([Makefile
                  mfhdf/ncgen/testncgen.sh
                  mfhdf/nctest/Makefile
                  mfhdf/test/Makefile
+                 mfhdf/test/srcdir_str.h
                  mfhdf/test/testmfhdf.sh
                  java/Makefile
                  java/src/Makefile

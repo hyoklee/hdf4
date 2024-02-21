@@ -14,7 +14,7 @@
  * help@hdfgroup.org.                                                        *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-#include "local_nc.h"
+#include "nc_priv.h"
 
 static uint32
 compute_hash(unsigned count, const char *str)
@@ -108,7 +108,7 @@ NC_re_string(NC_string *old, unsigned count, const char *str)
         return NULL;
 
     (void)memcpy(old->values, str, count);
-    (void)memset(old->values + count, 0, (int)old->count - (int)count + 1);
+    memset(old->values + count, 0, (int)old->count - (int)count + 1);
 
     /* make sure len is always == to the string length */
     old->len  = count;

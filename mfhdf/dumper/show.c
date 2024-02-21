@@ -14,7 +14,8 @@
 /* Modified from vshow.c by Eric Tsui, 12/25/1994. */
 
 #include "hdp.h"
-#include "vgint.h"
+
+#include "vg_priv.h"
 
 #define BUFFER 1000000
 
@@ -446,10 +447,15 @@ dumpattr(int32 vid, int32 findex, intn isvs, file_format_t ff, FILE *fp)
     uint8 *buf = NULL;
     uint8 *ptr = NULL;
     intn (*vfmtfn)(void *, file_format_t ff, FILE *);
-    intn  status;
-    intn  ret_value = SUCCEED;
-    char  name[FIELDNAMELENMAX + 1];
-    uint8 attrbuf[BUFFER];
+    intn   status;
+    intn   ret_value = SUCCEED;
+    char   name[FIELDNAMELENMAX + 1];
+    uint8 *attrbuf = NULL;
+
+    if (NULL == (attrbuf = (uint8 *)calloc(1, BUFFER))) {
+        ret_value = FAIL;
+        goto done;
+    }
 
     /* vdata or vgroup? */
     if (isvs)
@@ -603,6 +609,7 @@ dumpattr(int32 vid, int32 findex, intn isvs, file_format_t ff, FILE *fp)
     } /* for i */
 
 done:
+    free(attrbuf);
     if (ret_value == FAIL) { /* Failure cleanup */
         free(buf);
     }

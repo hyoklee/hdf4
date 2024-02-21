@@ -91,6 +91,26 @@
       ]
     },
     {
+      "name": "ci-StdShar-Clang-Fortran",
+      "description": "Clang Standard Fortran Config for x64 (Release)",
+      "inherits": [
+        "ci-x64-Release-Clang",
+        "ci-Fortran",
+        "ci-Java",
+        "ci-StdShar"
+      ]
+    },
+    {
+      "name": "ci-StdShar-GNUC-Fortran",
+      "description": "GNUC Standard Fortran Config for x64 (Release)",
+      "inherits": [
+        "ci-x64-Release-GNUC",
+        "ci-Fortran",
+        "ci-Java",
+        "ci-StdShar"
+      ]
+    },
+    {
       "name": "ci-StdShar-Intel",
       "description": "Intel Standard Config for x64 (Release)",
       "inherits": [
@@ -110,11 +130,28 @@
       ]
     },
     {
+      "name": "ci-StdShar-Clang-Fortran",
+      "description": "Clang Standard Fortran Build for x64 (Release)",
+      "configurePreset": "ci-StdShar-Clang-Fortran",
+      "inherits": [
+        "ci-x64-Release-Clang"
+      ]
+    },
+    {
       "name": "ci-StdShar-Clang",
       "description": "Clang Standard Build for x64 (Release)",
       "configurePreset": "ci-StdShar-Clang",
       "inherits": [
         "ci-x64-Release-Clang"
+      ]
+    },
+    {
+      "name": "ci-StdShar-GNUC-Fortran",
+      "description": "GNUC Standard Fortran Build for x64 (Release)",
+      "configurePreset": "ci-StdShar-GNUC-Fortran",
+      "verbose": true,
+      "inherits": [
+        "ci-x64-Release-GNUC"
       ]
     },
     {
@@ -152,6 +189,13 @@
       ]
     },
     {
+      "name": "ci-StdShar-Clang-Fortran",
+      "configurePreset": "ci-StdShar-Clang-Fortran",
+      "inherits": [
+        "ci-x64-Release-Clang"
+      ]
+    },
+    {
       "name": "ci-StdShar-OSX-Clang",
       "configurePreset": "ci-StdShar-Clang",
       "inherits": [
@@ -176,21 +220,11 @@
       ]
     },
     {
-      "name": "ci-StdShar-win-Intel",
-      "configurePreset": "ci-StdShar-Intel",
+      "name": "ci-StdShar-GNUC-Fortran",
+      "configurePreset": "ci-StdShar-GNUC-Fortran",
       "inherits": [
-        "ci-x64-Release-Intel"
-      ],
-      "filter": {
-        "exclude": {
-          "name": "HDP-dumpv|h4ex_GR_create|h4ex_GR_write|h4ex_VG_add"
-        }
-      },
-      "condition": {
-        "type": "equals",
-        "lhs": "${hostSystemName}",
-        "rhs": "Windows"
-      }
+        "ci-x64-Release-GNUC"
+      ]
     },
     {
       "name": "ci-StdShar-Intel",
@@ -212,8 +246,18 @@
       "inherits": "ci-x64-Release-Clang"
     },
     {
+      "name": "ci-StdShar-Clang-Fortran",
+      "configurePreset": "ci-StdShar-Clang-Fortran",
+      "inherits": "ci-x64-Release-Clang"
+    },
+    {
       "name": "ci-StdShar-GNUC",
       "configurePreset": "ci-StdShar-GNUC",
+      "inherits": "ci-x64-Release-GNUC"
+    },
+    {
+      "name": "ci-StdShar-GNUC-Fortran",
+      "configurePreset": "ci-StdShar-GNUC-Fortran",
       "inherits": "ci-x64-Release-GNUC"
     },
     {
@@ -242,6 +286,15 @@
       ]
     },
     {
+      "name": "ci-StdShar-Clang-Fortran",
+      "steps": [
+        {"type": "configure", "name": "ci-StdShar-Clang-Fortran"},
+        {"type": "build", "name": "ci-StdShar-Clang-Fortran"},
+        {"type": "test", "name": "ci-StdShar-Clang-Fortran"},
+        {"type": "package", "name": "ci-StdShar-Clang-Fortran"}
+      ]
+    },
+    {
       "name": "ci-StdShar-OSX-Clang",
       "steps": [
         {"type": "configure", "name": "ci-StdShar-Clang"},
@@ -260,20 +313,20 @@
       ]
     },
     {
+      "name": "ci-StdShar-GNUC-Fortran",
+      "steps": [
+        {"type": "configure", "name": "ci-StdShar-GNUC-Fortran"},
+        {"type": "build", "name": "ci-StdShar-GNUC-Fortran"},
+        {"type": "test", "name": "ci-StdShar-GNUC-Fortran"},
+        {"type": "package", "name": "ci-StdShar-GNUC-Fortran"}
+      ]
+    },
+    {
       "name": "ci-StdShar-Intel",
       "steps": [
         {"type": "configure", "name": "ci-StdShar-Intel"},
         {"type": "build", "name": "ci-StdShar-Intel"},
         {"type": "test", "name": "ci-StdShar-Intel"},
-        {"type": "package", "name": "ci-StdShar-Intel"}
-      ]
-    },
-    {
-      "name": "ci-StdShar-win-Intel",
-      "steps": [
-        {"type": "configure", "name": "ci-StdShar-Intel"},
-        {"type": "build", "name": "ci-StdShar-Intel"},
-        {"type": "test", "name": "ci-StdShar-win-Intel"},
         {"type": "package", "name": "ci-StdShar-Intel"}
       ]
     }

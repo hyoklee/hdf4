@@ -19,7 +19,7 @@
 
 #include "h4getopt.h"
 #include "hdf.h"
-#include "hfile.h"
+#include "hfile_priv.h"
 #include "mfhdf.h"
 #include "hdiff.h"
 
@@ -45,8 +45,8 @@ static void
 usage()
 {
 
-    (void)fprintf(stdout, "hdiff [-V] [-b] [-g] [-s] [-d] [-D] [-S] [-v var1[,...]] [-u var1[,...]] [-e "
-                          "count] [-t limit] [-p relative] file1 file2\n");
+    fprintf(stdout, "hdiff [-V] [-b] [-g] [-s] [-d] [-D] [-S] [-v var1[,...]] [-u var1[,...]] [-e "
+                    "count] [-t limit] [-p relative] file1 file2\n");
     fprintf(stdout, "  [-V]              Display version of the HDF4 library and exit\n");
     fprintf(stdout, "  [-b]              Verbose mode\n");
     fprintf(stdout, "  [-g]              Compare global attributes only\n");

@@ -65,7 +65,7 @@ static void
 test_little_read(void)
 {
     intn     rank;
-    int32    dimsizes[2];
+    int32    dimsizes[2] = {-1, -1};
     int32    numbertype;
     int8    *data_i8;
     uint8   *data_u8;
@@ -77,21 +77,14 @@ test_little_read(void)
     float64 *data_f64;
     int      ret;
 
-    char  filename[512] = "";
-    char *srcdir        = getenv("srcdir");
+    const char *filename = get_srcdir_filename(FILENAME);
 
     MESSAGE(5, printf("Testing Little-Endian Read Routines\n"););
 
     MESSAGE(10, printf("Testing Little-Endian INT8 Reading Routines\n"););
 
-    /* Generate the correct name for the test file, by prepending the source path */
-    if (srcdir && ((strlen(srcdir) + strlen(FILENAME) + 1) < sizeof(filename))) {
-        strcpy(filename, srcdir);
-        strcat(filename, "/");
-    }
-    strcat(filename, FILENAME);
-
     ret = DFSDgetdims(filename, &rank, dimsizes, 2);
+
     RESULT("DFSDgetdims");
     if (dimsizes[0] != CDIM_Y || dimsizes[1] != CDIM_X) {
         fprintf(stderr, "Dimensions for INT8 data were incorrect\n");

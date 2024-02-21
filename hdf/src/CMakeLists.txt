@@ -66,56 +66,58 @@ set (HDF4_HDF_SRC_CSRCS
 )
 
 set (HDF4_HDF_SRC_CHDRS
-    ${HDF4_HDF_SRC_SOURCE_DIR}/atom.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/bitvect.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/cdeflate.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/cnbit.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/cnone.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/crle.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/cskphuff.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/cszip.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/df.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/dfan.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/dfgr.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/dfrig.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/dfsd.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/dfufp2i.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/dynarray.h
     ${HDF4_HDF_SRC_SOURCE_DIR}/H4api_adpt.h
     #${HDF4_BINARY_DIR}/h4config.h
     ${HDF4_HDF_SRC_SOURCE_DIR}/hbitio.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/hchunks.h
     ${HDF4_HDF_SRC_SOURCE_DIR}/hcomp.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/hcompi.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/hconv.h
     ${HDF4_HDF_SRC_SOURCE_DIR}/hdatainfo.h
     ${HDF4_HDF_SRC_SOURCE_DIR}/hdf.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/hdfi.h
     ${HDF4_HDF_SRC_SOURCE_DIR}/herr.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/hfile.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/hkit.h
     ${HDF4_HDF_SRC_SOURCE_DIR}/hlimits.h
     ${HDF4_HDF_SRC_SOURCE_DIR}/hntdefs.h
     ${HDF4_HDF_SRC_SOURCE_DIR}/hproto.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/hqueue.h
     ${HDF4_HDF_SRC_SOURCE_DIR}/htags.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/linklist.h
     ${HDF4_HDF_SRC_SOURCE_DIR}/mfan.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/mfani.h
     ${HDF4_HDF_SRC_SOURCE_DIR}/mfgr.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/mfgri.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/mstdio.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/tbbt.h
     ${HDF4_HDF_SRC_SOURCE_DIR}/vg.h
 )
 
+# Internal headers end in _priv.h
 set (HDF4_PRIVATE_HDF_SRC_CHDRS
-    ${HDF4_HDF_SRC_SOURCE_DIR}/glist.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/mcache.h
-    ${HDF4_HDF_SRC_SOURCE_DIR}/vgint.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/atom_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/bitvect_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/cdeflate_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/cnbit_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/cnone_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/crle_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/cskphuff_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/cszip_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/df_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/dfan_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/dfgr_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/dfrig_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/dfsd_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/dfufp2i_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/dynarray_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/glist_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/hchunks_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/hcomp_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/hconv_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/hdf_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/herr_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/hfile_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/hkit_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/hqueue_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/linklist_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/mcache_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/mfan_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/mfgr_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/mstdio_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/tbbt_priv.h
+    ${HDF4_HDF_SRC_SOURCE_DIR}/vg_priv.h
 )
 
-if (NOT ONLY_SHARED_LIBS)
+if (BUILD_STATIC_LIBS)
   add_library (${HDF4_SRC_LIB_TARGET} STATIC ${HDF4_HDF_SRC_CSRCS} ${HDF4_HDF_SRC_CHDRS} ${HDF4_PRIVATE_HDF_SRC_CHDRS} ${HDF4_BINARY_DIR}/h4config.h)
   target_include_directories(${HDF4_SRC_LIB_TARGET}
       PRIVATE "${HDF4_HDF_BINARY_DIR};${HDF4_HDFSOURCE_DIR};${HDF4_BINARY_DIR};${HDF4_COMP_INCLUDE_DIRECTORIES}"
@@ -136,6 +138,12 @@ if (NOT ONLY_SHARED_LIBS)
       INTERFACE_INCLUDE_DIRECTORIES "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/include>"
   )
   set (install_targets ${HDF4_SRC_LIB_TARGET})
+#
+#  add_custom_command(TARGET ${HDF4_SRC_LIB_TARGET}
+#       COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE_NAME:HDF4_SRC_LIB_TARGET> $<TARGET_FILE_NAME:HDF4_SRC_LIB_SYM_TARGET>
+#       DEPENDS $<TARGET_FILE_NAME:HDF4_SRC_LIB_TARGET>
+#  )
+#  set (install_targets ${install_targets} ${HDF4_SRC_LIB_SYM_TARGET})
 endif ()
 
 if (BUILD_SHARED_LIBS)
@@ -161,6 +169,12 @@ if (BUILD_SHARED_LIBS)
       INTERFACE_COMPILE_DEFINITIONS H4_BUILT_AS_DYNAMIC_LIB=1
   )
   set (install_targets ${install_targets} ${HDF4_SRC_LIBSH_TARGET})
+#
+#  add_custom_command(TARGET ${HDF4_SRC_LIBSH_TARGET}
+#       COMMAND ${CMAKE_COMMAND} -E create_symlink $<TARGET_FILE_NAME:HDF4_SRC_LIBSH_TARGET> $<TARGET_FILE_NAME:HDF4_SRC_LIBSH_SYM_TARGET>
+#       DEPENDS $<TARGET_FILE_NAME:HDF4_SRC_LIBSH_TARGET>
+#  )
+#  set (install_targets ${install_targets} ${HDF4_SRC_LIBSH_SYM_TARGET})
 endif ()
 
 #-----------------------------------------------------------------------------
@@ -182,7 +196,7 @@ if (HDF4_EXPORTED_TARGETS)
   if (BUILD_SHARED_LIBS)
     INSTALL_TARGET_PDB (${HDF4_SRC_LIBSH_TARGET} ${HDF4_INSTALL_BIN_DIR} libraries)
   endif ()
-  if (NOT ONLY_SHARED_LIBS)
+  if (BUILD_STATIC_LIBS)
     INSTALL_TARGET_PDB (${HDF4_SRC_LIB_TARGET} ${HDF4_INSTALL_LIB_DIR} libraries)
   endif ()
 

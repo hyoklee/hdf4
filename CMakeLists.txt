@@ -149,6 +149,7 @@ mark_as_advanced (HDF4_NO_PACKAGES)
 # Set the core names of all the libraries
 #-----------------------------------------------------------------------------
 set (HDF4_SRC_LIB_CORENAME          "hdf")
+set (HDF4_SRC_LIB_SYM_CORENAME      "df")
 set (HDF4_SRC_FCSTUB_LIB_CORENAME   "hdf_fcstub")
 set (HDF4_SRC_FORTRAN_LIB_CORENAME  "hdf_fortran")
 set (HDF4_MF_LIB_CORENAME           "mfhdf")
@@ -166,6 +167,7 @@ set (HDF4_JAVA_TEST_LIB_CORENAME    "jartest4")
 # Set the true names of all the libraries if customized by external project
 #-----------------------------------------------------------------------------
 set (HDF4_SRC_LIB_NAME          "${HDF4_EXTERNAL_LIB_PREFIX}${HDF4_SRC_LIB_CORENAME}")
+set (HDF4_SRC_LIB_SYM_NAME      "${HDF4_EXTERNAL_LIB_PREFIX}${HDF4_SRC_LIB_SYM_CORENAME}")
 set (HDF4_SRC_FCSTUB_LIB_NAME   "${HDF4_EXTERNAL_LIB_PREFIX}${HDF4_SRC_FCSTUB_LIB_CORENAME}")
 set (HDF4_SRC_FORTRAN_LIB_NAME  "${HDF4_EXTERNAL_LIB_PREFIX}${HDF4_SRC_FORTRAN_LIB_CORENAME}")
 set (HDF4_MF_LIB_NAME           "${HDF4_EXTERNAL_LIB_PREFIX}${HDF4_MF_LIB_CORENAME}")
@@ -183,6 +185,7 @@ set (HDF4_JAVA_TEST_LIB_NAME    "${HDF4_EXTERNAL_LIB_PREFIX}${HDF4_JAVA_TEST_LIB
 # Set the target names of all the libraries
 #-----------------------------------------------------------------------------
 set (HDF4_SRC_LIB_TARGET          "${HDF4_SRC_LIB_CORENAME}-static")
+set (HDF4_SRC_LIB_SYM_TARGET      "${HDF4_SRC_LIB_SYM_CORENAME}-static")
 set (HDF4_SRC_FCSTUB_LIB_TARGET   "${HDF4_SRC_FCSTUB_LIB_CORENAME}-static")
 set (HDF4_SRC_FORTRAN_LIB_TARGET  "${HDF4_SRC_FORTRAN_LIB_CORENAME}-static")
 set (HDF4_MF_LIB_TARGET           "${HDF4_MF_LIB_CORENAME}-static")
@@ -195,6 +198,7 @@ set (HDF4_TOOLS_LIB_TARGET        "${HDF4_TOOLS_LIB_CORENAME}-static")
 set (HDF4_JAVA_JNI_LIB_TARGET     "${HDF4_JAVA_JNI_LIB_CORENAME}")
 set (HDF4_JAVA_HDF_LIB_TARGET     "${HDF4_JAVA_HDF_LIB_CORENAME}")
 set (HDF4_JAVA_TEST_LIB_TARGET    "${HDF4_JAVA_TEST_LIB_CORENAME}")
+set (HDF4_SRC_LIBSH_SYM_TARGET      "${HDF4_SRC_LIB_SYM_CORENAME}-shared")
 set (HDF4_SRC_LIBSH_TARGET          "${HDF4_SRC_LIB_CORENAME}-shared")
 set (HDF4_SRC_FCSTUB_LIBSH_TARGET   "${HDF4_SRC_FCSTUB_LIB_CORENAME}-shared")
 set (HDF4_SRC_FORTRAN_LIBSH_TARGET  "${HDF4_SRC_FORTRAN_LIB_CORENAME}-shared")
@@ -228,9 +232,9 @@ set (HDF4_SRC_INCLUDE_DIRS ${HDF4_HDFSOURCE_DIR} ${HDF4_MFHDFSOURCE_DIR})
 set (CMAKE_MODULE_PATH ${HDF_RESOURCES_DIR} ${CMAKE_MODULE_PATH})
 
 #-----------------------------------------------------------------------------
-# parse the full version number from hfile.h and include in H4_VERS_INFO
+# parse the full version number from hfile_priv.h and include in H4_VERS_INFO
 #-----------------------------------------------------------------------------
-file (READ ${HDF4_HDFSOURCE_DIR}/hfile.h _hfile_h_contents)
+file (READ ${HDF4_HDFSOURCE_DIR}/hfile_priv.h _hfile_h_contents)
 string (REGEX REPLACE ".*#define[ \t]+LIBVER_MAJOR[ \t]+([0-9]*).*$"
     "\\1" H4_VERS_MAJOR ${_hfile_h_contents})
 string (REGEX REPLACE ".*#define[ \t]+LIBVER_MINOR[ \t]+([0-9]*).*$"
@@ -331,7 +335,9 @@ set (H4_ENABLE_STATIC_LIB NO)
 option (BUILD_SHARED_LIBS "Build Shared Libraries" ON)
 set (H4_ENABLE_SHARED_LIB NO)
 
-# only shared libraries is true if user forces static OFF
+option (HDF4_BUILD_STATIC_TOOLS "Build Static Tools NOT Shared Tools" OFF)
+
+# only shared libraries/tools is true if user forces static OFF
 if (NOT BUILD_STATIC_LIBS)
   set (ONLY_SHARED_LIBS ON CACHE BOOL "Only Build Shared Libraries" FORCE)
 endif ()
@@ -341,6 +347,15 @@ if (ONLY_SHARED_LIBS)
   set (H4_ENABLE_STATIC_LIB NO)
   set (BUILD_SHARED_LIBS ON CACHE BOOL "Build Shared Libraries" FORCE)
   set (BUILD_STATIC_LIBS OFF CACHE BOOL "Build Static Libraries" FORCE)
+  if (HDF4_BUILD_STATIC_TOOLS)
+    message (WARNING "Cannot build static tools without static libraries. Building shared tools.")
+  endif ()
+  set (HDF4_BUILD_STATIC_TOOLS OFF CACHE BOOL "Build Static Tools NOT Shared Tools" FORCE)
+endif ()
+
+if (NOT BUILD_SHARED_LIBS AND NOT HDF4_BUILD_STATIC_TOOLS)
+  message (WARNING "Cannot build shared tools without shared libraries. Building static tools.")
+  set (HDF4_BUILD_STATIC_TOOLS ON CACHE BOOL "Build Static Tools NOT Shared Tools" FORCE)
 endif ()
 
 if (BUILD_STATIC_LIBS)
@@ -351,12 +366,6 @@ if (BUILD_SHARED_LIBS)
 endif ()
 
 set (CMAKE_POSITION_INDEPENDENT_CODE ON)
-
-if (NOT BUILD_SHARED_LIBS)
-  set (tgt_file_ext "")
-else ()
-  set (tgt_file_ext "-shared")
-endif ()
 
 add_definitions (-DHAVE_CONFIG_H)
 
@@ -562,9 +571,13 @@ add_subdirectory (mfhdf)
 # Option to build HDF4 Java Library
 #-----------------------------------------------------------------------------
 if (EXISTS "${HDF4_SOURCE_DIR}/java" AND IS_DIRECTORY "${HDF4_SOURCE_DIR}/java")
-  option (HDF4_BUILD_JAVA  "Build Java HDF Library" OFF)
+  option (HDF4_BUILD_JAVA "Build Java HDF Library" OFF)
   if (HDF4_BUILD_JAVA)
-    add_subdirectory (java)
+    if (NOT BUILD_SHARED_LIBS)
+      message (FATAL_ERROR "\nJava requires shared libraries!\n")
+    else ()
+      add_subdirectory (java)
+    endif ()
   endif ()
 endif ()
 

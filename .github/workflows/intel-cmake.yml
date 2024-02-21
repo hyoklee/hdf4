@@ -1,6 +1,5 @@
 name: hdf4 dev CMake icx CI
 
-# Controls when the action will run. Triggers the workflow on a call
 on:
   workflow_call:
     inputs:
@@ -122,5 +121,5 @@ jobs:
           CC: ${{ steps.setup-fortran.outputs.cc }}
           CXX: ${{ steps.setup-fortran.outputs.cxx }}
         run: |
-          ctest . --parallel 2 -C ${{ inputs.build_mode }} -V -E "HDP-dumpv|h4ex_GR_create|h4ex_GR_write|h4ex_VG_add"
+          ctest . --parallel 2 -C ${{ inputs.build_mode }} -V
         working-directory: ${{ runner.workspace }}/build

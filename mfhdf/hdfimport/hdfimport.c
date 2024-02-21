@@ -177,7 +177,7 @@
 #include <string.h>
 
 #include "hdf.h"
-#include "hfile.h"
+#include "hfile_priv.h"
 #include "mfhdf.h"
 
 #ifdef H4_HAVE_SYS_STAT_H
@@ -1731,13 +1731,15 @@ gtype(char *infile, struct Input *in, FILE **strm)
         else {
             if (!memcmp("FP64", buf, 4) || !memcmp("fp64", buf, 4)) {
                 in->is_fp64 = TRUE;
-                if (in->outtype != FP_64)
+                if (in->outtype != FP_64) {
                     if (in->outtype != NO_NE) {
                         fprintf(stderr, err4, infile);
                         goto err;
                     }
-                    else
+                    else {
                         in->outtype = FP_32;
+                    }
+                }
             }
             else {
                 if (in->outtype != NO_NE) {

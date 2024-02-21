@@ -101,8 +101,8 @@ EXPORTED ROUTINES
 
 *************************************************************************/
 
-#include "hdfi.h"
-#include "vgint.h"
+#include "hdf_priv.h"
+#include "vg_priv.h"
 
 /* These are used to determine whether a vgroup had been created by the
    library internally, that is, not created by user's application */
@@ -644,6 +644,10 @@ Vinitialize(HFILEID f /* IN: file handle */)
 
     /* clear error stack */
     HEclear();
+
+    /* Check file ID */
+    if (f < 0)
+        HGOTO_ERROR(DFE_ARGS, FAIL);
 
     /* Perform global, one-time initialization */
     if (library_terminate == FALSE) {

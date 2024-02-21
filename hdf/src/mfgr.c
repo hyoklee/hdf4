@@ -154,9 +154,8 @@ intn GRIil_convert(const void * inbuf,gr_interlace_t inil,void * outbuf,
     - Copy a pixel buffer from one interlace to another.
  */
 
-#include "hdfi.h"
-#include "hlimits.h"
-#include "mfgri.h"
+#include "hdf_priv.h"
+#include "mfgr_priv.h"
 
 #ifdef H4_HAVE_LIBSZ /* we have the library */
 #include "szlib.h"
@@ -3936,11 +3935,6 @@ done:
 
  DESCRIPTION
     Sets the computed szip parameters before calling HCcreate.
-
- GLOBAL VARIABLES
- COMMENTS, BUGS, ASSUMPTIONS
- EXAMPLES
- REVISION LOG
 --------------------------------------------------------------------------*/
 intn
 GRsetup_szip_parms(ri_info_t *ri_ptr, comp_info *c_info, int32 *cdims)
@@ -3949,7 +3943,6 @@ GRsetup_szip_parms(ri_info_t *ri_ptr, comp_info *c_info, int32 *cdims)
     int32 ndims;
     int32 ncomp;
     int32 xdims[H4_MAX_VAR_DIMS];
-    intn  ret_value = SUCCEED;
 
     ndims    = 2;
     xdims[0] = ri_ptr->img_dim.xdim;
@@ -3958,10 +3951,7 @@ GRsetup_szip_parms(ri_info_t *ri_ptr, comp_info *c_info, int32 *cdims)
     nt    = ri_ptr->img_dim.nt;
     ncomp = ri_ptr->img_dim.ncomps;
 
-    ret_value = HCPsetup_szip_parms(c_info, nt, ncomp, ndims, xdims, cdims);
-
-done:
-    return ret_value;
+    return HCPsetup_szip_parms(c_info, nt, ncomp, ndims, xdims, cdims);
 }
 #endif
 
