@@ -41,11 +41,12 @@ jobs:
             cd hdf4
             sudo pkg_add cmake
             sudo pkg_add jpeg
-            sudo pkg_add devel/jdk/21
+            sudo pkg_add jdk-17.0.8.7.1p0v0	    
+            export PATH=/usr/local/jdk-17/bin/:$PATH
             mkdir build
             cd build
             cmake -DHDF4_BUILD_FORTRAN:BOOL=OFF -D HDF4_BUILD_JAVA=ON -D CTEST_DROP_SITE_INIT:STRING="my.cdash.org" -D SITE:STRING=j.obsd  ..
             ctest -T Build --output-on-error -j
             ctest -T Test --output-on-error -j
-            ctest -T Submit	    
+
 
