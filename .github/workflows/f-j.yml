@@ -31,7 +31,7 @@ jobs:
           shell: bash
           run: |
             sudo pkg_add git
-            git clone https://github.com/hdfeos/hdf4
+            git clone https://github.com/hyoklee/hdf4
             cd hdf4
             sudo pkg_add cmake
             sudo pkg_add jpeg

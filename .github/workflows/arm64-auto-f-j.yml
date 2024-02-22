@@ -34,7 +34,7 @@ jobs:
             sudo pkg_add g95-11.2.0p9
             export FC=/usr/local/bin/egfortran
             export PATH=/usr/local/jdk-17/bin/:$PATH
-            git clone https://github.com/hdfeos/hdf4
+            git clone https://github.com/hyoklee/hdf4
             cd hdf4
             export AUTOCONF_VERSION=2.71
             export AUTOMAKE_VERSION=1.16
