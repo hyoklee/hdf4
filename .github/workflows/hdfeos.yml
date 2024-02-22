@@ -1,0 +1,31 @@
+name: hdfeos
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build hdfeos
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Install Autotools Dependencies (Linux)
+        run: |
+          sudo apt update
+          sudo apt install automake autoconf libtool libtool-bin
+      - name: Install HDF4
+        run: |
+          autoreconf -fvi
+          ./configure --prefix=/usr/local --enable-shared --disable-fortran --disable-netcdf
+          cat ./config.log
+          make
+          make check
+          sudo make install
+      - name: Install HDF-EOS2
+        run: |
+          wget -O hdfeos.tar.gz "https://git.earthdata.nasa.gov/projects/DAS/repos/hdfeos/raw/hdf-eos2-3.0-src.tar.gz?at=3128a738021501c821549955f6c78348e5f33850"
+          tar zxvf hdfeos.tar.gz
+          cd hdf-eos2-3.0
+          ./configure CC=/usr/local/bin/h4cc --prefix=/usr/local/ --enable-install-include
+          make
+          make check
+          sudo make install
