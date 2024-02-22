@@ -995,6 +995,7 @@ AC_CHECK_FUNCS([fork getrusage system wait])
 case "$host" in
   *-linux*|*-k*bsd*-gnu|*-gnu*)BAR="linux"       ;;
   *-freebsd*)           BAR="fbsd"        ;;
+  *-openbsd*)           BAR="fbsd"        ;;  
   *-ibm-aix*)           BAR="aix"         ;;
   sparc64-*-solaris2*)  BAR="solaris64"   ;;
   *-*-solaris2*)        BAR="solaris"     ;;
