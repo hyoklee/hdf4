@@ -50,6 +50,6 @@ jobs:
           git clone https://github.com/hyoklee/hdf4.git
           cd hdf4
           ./autogen.sh
-          ./configure CFLAGS="-Wno-implicit-function-declaration" LDFLAGS="-lws2_32" --disable-netcdf
+          ./configure CFLAGS="-Wno-implicit-function-declaration" LDFLAGS="-lws2_32" --disable-netcdf --disable-netcdf-tools --enable-static-exec
           make
           make check
