@@ -1000,6 +1000,7 @@ case "$host" in
   *-*-solaris2*)        BAR="solaris"     ;;
   *-apple*)             BAR="apple"       ;;
   *-pc-cygwin*)         BAR="linux"       ;;
+  *-mingw*)             BAR="linux"       ;;  
   *)                    echo "*** unknown host $host!"; exit 1 ;;
 esac
 src_files=""
