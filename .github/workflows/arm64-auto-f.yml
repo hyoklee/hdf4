@@ -37,7 +37,7 @@ jobs:
             export AUTOCONF_VERSION=2.71
             export AUTOMAKE_VERSION=1.16
             autoreconf -fvi
-            ./configure F77=/usr/local/bin/egfortran --enable-fortran --disable-shared --with-jpeg=/usr/local
+            ./configure F77=/usr/local/bin/egfortran FFLAGS="-fallow-argument-mismatch"  --enable-fortran --disable-shared --with-jpeg=/usr/local
             make
             make check
             sudo make install
