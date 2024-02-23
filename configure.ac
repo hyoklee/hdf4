@@ -907,6 +907,8 @@ case "`uname`" in
     MINGW*)
       # Check for Winsock library
       AC_CHECK_LIB([ws2_32], [htonl])
+      AC_DEFINE([HAVE_WIN32_API], [1], [Define if we export HDF4-built unmangled netCDF 2.3.2 API calls])
+      AC_DEFINE([F77_FUNC(name,NAME)], [name ## _], [Define H4_F77_FUNC as name ##])
       ;;
 esac
 
