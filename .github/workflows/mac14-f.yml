@@ -1,38 +1,32 @@
-name: mac14 f j cd
+name: mac14 f
 
 on:
   workflow_dispatch:
   push:
-    branches: [ master- ]
+    branches: [ master ]
 jobs:
   build:
-    name: mac14 f j cd
+    name: mac14 f
     runs-on: macos-14
     steps:
-    - name: Install Dependencies (macOS)
+    - name: Install Dependencies
       run: |
-        brew install ninja libaec jpeg
+        brew install  jpeg libaec ninja
         brew reinstall gfortran
     - name: Get Sources
       uses: actions/checkout@v4.1.1
-
-    - name: Test
+    - name: Test HDF4
       run: |
         export FC=/opt/homebrew/bin/gfortran
         mkdir build
         cd build
         cmake -G Ninja \
-        -D HDF4_BUILD_FORTRAN:BOOL=ON \
-        -D BUILD_SHARED_LIBS=ON \
+        -D BUILD_SHARED_LIBS=OFF \
         -D CTEST_DROP_SITE_INIT:STRING="my.cdash.org" \
-        -D HDF4_BUILD_JAVA=ON \
-        -D SITE:STRING=j.f.mac14 \
+        -D HDF4_BUILD_FORTRAN:BOOL=ON \
+        -D SITE:STRING=f.mac14 \
         ..
         ctest -T Build --output-on-error -j
         ctest -T Test --output-on-error -j
-      shell: bash
-      continue-on-error: true
-    - name: Submit
-      run: |
-        cd build
         ctest -T Submit
+      shell: bash

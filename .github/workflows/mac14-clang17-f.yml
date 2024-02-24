@@ -11,12 +11,10 @@ jobs:
     steps:
     - name: Install Dependencies
       run: |
-        brew install llvm ninja openmpi libaec jpeg
+        brew install  jpeg llvm libaec ninja
         brew reinstall gfortran
-
     - name: Get Sources
       uses: actions/checkout@v4.1.1
-
     - name: Test HDF4
       run: |
         export PATH=/opt/homebrew/opt/llvm/bin:$PATH
@@ -27,6 +25,7 @@ jobs:
         mkdir build
         cd build
         cmake -G Ninja \
+        -D BUILD_SHARED_LIBS=OFF \
         -D CTEST_DROP_SITE_INIT:STRING="my.cdash.org" \
         -D HDF4_BUILD_FORTRAN:BOOL=ON \
         -D SITE:STRING=f.clang17.mac14 \
