@@ -7,7 +7,7 @@ HDIFF=hdiff               # The tool name
 HDIFF_BIN=`pwd`/$HDIFF    # The path of the tool binary
 
 CMP='cmp -s'
-DIFF='diff -w -c'
+DIFF='diff -b -c'
 
 nerrors=0
 verbose=yes

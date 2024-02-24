@@ -9,22 +9,20 @@ jobs:
     name: "mac14 f j"
     runs-on: macos-14
     steps:
-    - name: Install Dependencies (macOS)
+    - name: Install Dependencies
       run: |
-        brew install ninja libaec jpeg
+        brew install libaec jpeg ninja
         brew reinstall gfortran
     - name: Get Sources
       uses: actions/checkout@v4.1.1
-
-    - name: Configure
+    - name: Test HDF4
       run: |
         export FC=/opt/homebrew/bin/gfortran
         mkdir build
         cd build
         cmake -G Ninja \
-        -D HDF4_BUILD_FORTRAN:BOOL=ON \
-        -D BUILD_SHARED_LIBS=ON \
         -D CTEST_DROP_SITE_INIT:STRING="my.cdash.org" \
+        -D HDF4_BUILD_FORTRAN:BOOL=ON \
         -D HDF4_BUILD_JAVA=ON \
         -D SITE:STRING=j.f.mac14 \
         ..
