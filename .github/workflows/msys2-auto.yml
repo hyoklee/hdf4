@@ -59,4 +59,5 @@ jobs:
 
       - name: Autotools Run Tests
         shell: msys2 {0}
+        run: |
           make check
