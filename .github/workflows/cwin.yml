@@ -8,6 +8,10 @@ jobs:
   test:
     runs-on: windows-latest
     steps:
+      - name: Set git to use LF
+        run: |
+          git config --global core.autocrlf input
+
       - uses: actions/checkout@v4
 
       - name: Install Cygwin
@@ -16,7 +20,7 @@ jobs:
           packages: cmake gcc-fortran libjpeg-devel make zlib-devel
       - name: Test HDF4
         run: |
-          git config --global core.autocrlf input
+
           export PATH=/usr/bin:$PATH
           mkdir build
           cd build
