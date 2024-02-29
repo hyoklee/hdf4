@@ -7,5 +7,6 @@
 |f j| [![f j](https://github.com/hyoklee/hdf4/actions/workflows/f-j.yml/badge.svg)](https://github.com/hyoklee/hdf4/actions/workflows/f-j.yml) [![arm64 auto f j](https://github.com/hyoklee/hdf4/actions/workflows/arm64-auto-f-j.yml/badge.svg)](https://github.com/hyoklee/hdf4/actions/workflows/arm64-auto-f-j.yml) [![mac14 f j](https://github.com/hyoklee/hdf4/actions/workflows/mac14-f-j.yml/badge.svg)](https://github.com/hyoklee/hdf4/actions/workflows/mac14-f-j.yml) [![mac14 auto clang17 f j ](https://github.com/hyoklee/hdf4/actions/workflows/mac14-auto-clang17-f-j.yml/badge.svg)](https://github.com/hyoklee/hdf4/actions/workflows/mac14-auto-clang17-f-j.yml) [![mac14 auto clang17 f j sh](https://github.com/hyoklee/hdf4/actions/workflows/mac14-auto-clang17-f-j-sh.yml/badge.svg)](https://github.com/hyoklee/hdf4/actions/workflows/mac14-auto-clang17-f-j-sh.yml) |
 |f sh|  [![lin auto aocc f sh](https://github.com/hyoklee/hdf4/actions/workflows/lin-auto-aocc-f-sh.yml/badge.svg)](https://github.com/hyoklee/hdf4/actions/workflows/lin-auto-aocc-f-sh.yml) [![lin auto nvhpc f sh](https://github.com/hyoklee/hdf4/actions/workflows/lin-auto-nvhpc-f-sh.yml/badge.svg)](https://github.com/hyoklee/hdf4/actions/workflows/lin-auto-nvhpc-f-sh.yml) |
 |j| [![j](https://github.com/hyoklee/hdf4/actions/workflows/j.yml/badge.svg)](https://github.com/hyoklee/hdf4/actions/workflows/j.yml)|
-![reology](https://repology.org/badge/vertical-allrepos/hdf.svg?header=hdf)
+
+![repology](https://repology.org/badge/vertical-allrepos/hdf.svg?header=hdf)
 
