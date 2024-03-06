@@ -1,0 +1,30 @@
+name: mac14 jt
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ master ]
+jobs:
+  build:
+    name: "mac14 jpeg-turbo"
+    runs-on: macos-14
+    steps:
+    - name: Install Dependencies (macOS)
+      run: brew install ninja openmpi libaec jpeg-turbo
+
+    - name: Get Sources
+      uses: actions/checkout@v4.1.1
+
+    - name: Configure
+      run: |
+        mkdir build
+        cd build
+        cmake -G Ninja \
+        -D BUILD_SHARED_LIBS=ON \
+        -D CTEST_DROP_SITE_INIT:STRING="my.cdash.org" \
+        -D SITE:STRING=jt.mac14 \
+        ..
+        ctest -T Build --output-on-error -j
+        ctest -T Test --output-on-error -j
+        ctest -T Submit
+      shell: bash
