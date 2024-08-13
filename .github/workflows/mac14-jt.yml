@@ -10,7 +10,7 @@ jobs:
     runs-on: macos-14
     steps:
     - name: Install Dependencies (macOS)
-      run: brew install ninja openmpi libaec jpeg-turbo
+      run: brew install ninja jpeg-turbo
 
     - name: Get Sources
       uses: actions/checkout@v4.1.1
@@ -24,7 +24,7 @@ jobs:
         -D CTEST_DROP_SITE_INIT:STRING="my.cdash.org" \
         -D SITE:STRING=jt.mac14 \
         ..
-        ctest -T Build --output-on-error -j
-        ctest -T Test --output-on-error -j
+        ctest -T Build
+        ctest -T Test
         ctest -T Submit
-      shell: bash
+
