@@ -51,6 +51,4 @@ jobs:
             -D HDF4_BUILD_JAVA:BOOL=ON \
             -D JAVA_INCLUDE_PATH2="/usr/pkg/java/openjdk21/include/netbsd" \
             -D SITE:STRING=j.f.nbsd ..
-            ctest -T Build -VV --output-on-error -j
-            ctest -T Test -VV --output-on-error -j
-            ctest -T Submit
+            ctest -D Experimental

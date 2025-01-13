@@ -45,6 +45,4 @@ jobs:
             -DHDF4_BUILD_JAVA:BOOL=ON \
             -DCTEST_DROP_SITE_INIT:STRING="my.cdash.org" \
             -DSITE:STRING=j.f.obsd ..
-            ctest -T Build --output-on-error -j
-            ctest -VV -T Test --output-on-error -j
-            ctest -T Submit
+            ctest -D Experimental

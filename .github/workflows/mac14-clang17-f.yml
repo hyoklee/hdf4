@@ -30,7 +30,5 @@ jobs:
         -D HDF4_BUILD_FORTRAN:BOOL=ON \
         -D SITE:STRING=f.clang17.mac14 \
         ..
-        ctest -T Build --output-on-error -j
-        ctest -T Test --output-on-error -j
-        ctest -T Submit
+        ctest -D Experimental
       shell: bash

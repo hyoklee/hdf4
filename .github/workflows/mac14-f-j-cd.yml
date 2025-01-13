@@ -28,11 +28,5 @@ jobs:
         -D HDF4_BUILD_JAVA=ON \
         -D SITE:STRING=j.f.mac14 \
         ..
-        ctest -T Build --output-on-error -j
-        ctest -T Test --output-on-error -j
-      shell: bash
-      continue-on-error: true
-    - name: Submit
-      run: |
-        cd build
-        ctest -T Submit
+        ctest -D Experimental
+
