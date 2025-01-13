@@ -25,8 +25,6 @@ jobs:
             apt-get install -q -y gfortran g++  yacc flex libtool autotools-dev
           run: |            
             echo ::set-output name=uname::$(uname -a)
-            git clone https://github.com/HDFGroup/hdf4
-            cd hdf4
             autoreconf -fvi
             ./configure --enable-shared --disable-fortran --disable-netcdf
             cat ./config.log
