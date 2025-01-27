@@ -56,7 +56,7 @@ set (HDF4_USE_LIBAEC_STATIC ON CACHE BOOL "Use static AEC library" FORCE)
 
 set (JPEG_PACKAGE_NAME "jpeg" CACHE STRING "Name of JPEG package" FORCE)
 set (JPEG_TGZ_ORIGPATH "https://www.ijg.org/filesz" CACHE STRING "Use JPEG from original location" FORCE)
-set (JPEG_TGZ_NAME "jpegsrc.v9e.tar.gz" CACHE STRING "Use JPEG from original compressed file" FORCE)
+set (JPEG_TGZ_NAME "jpegsrc.v9f.tar.gz" CACHE STRING "Use JPEG from original compressed file" FORCE)
 set (JPEG_USE_LOCALCONTENT ON CACHE BOOL "Use local file for JPEG FetchContent" FORCE)
 set (JPEG_GIT_URL "https://github.com/libjpeg-turbo/libjpeg-turbo.git" CACHE STRING "Use JPEG from TurboJPEG" FORCE)
 set (JPEG_GIT_BRANCH "jpeg-9e" CACHE STRING "" FORCE)
